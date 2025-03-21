@@ -11,3 +11,5 @@ val BlackInvert = Color(0xFFFFFFFF)
 val orange = Color(0xFFED8F1E)
 
 val lightGray = Color(0xFFE5E5EA)
+
+val lemonGreen = Color(0xFFCBE97B)

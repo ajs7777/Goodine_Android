@@ -164,6 +164,7 @@ Row(
     }
 }
 }
+
 @Composable
 fun SubscriptionOption(currency: String, plan: String, duration: String, isSelected: Boolean, onSelect: () -> Unit) {
     Row(
