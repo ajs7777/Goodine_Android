@@ -31,39 +31,45 @@ fun RestaurantProfileScreen() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Status Badge
-        Text(
-            text = "Open Now",
-            color = Color.Black,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
+        Column (
             modifier = Modifier
-                .background(Color(0xFFCBE97B), RoundedCornerShape(8.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        )
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Open Now",
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .background(Color(0xFFCBE97B), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Restaurant Info
-        Text(text = "Ajs", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Text(text = "Indian", fontSize = 16.sp, color = Color.Gray)
-        Text(text = "Agartala | 2 Km", fontSize = 14.sp, color = Color.Gray)
+            // Restaurant Info
+            Text(text = "Ajs", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Indian", fontSize = 16.sp, color = Color.Gray)
+            Text(text = "Agartala | 2 Km", fontSize = 14.sp, color = Color.Gray)
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "⭐ 4.5 (3k Ratings)", fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "₹600 for two", fontSize = 14.sp, color = Color.Gray)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "⭐ 4.5 (3k Ratings)", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "₹600 for two", fontSize = 14.sp, color = Color.Gray)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Features
+            Text(text = "Features", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Row(modifier = Modifier.fillMaxWidth()) {
+                FeatureTag("Reservation Available")
+                Spacer(modifier = Modifier.width(8.dp))
+                FeatureTag("Dine in Available")
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // Features
-        Text(text = "Features", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Row(modifier = Modifier.fillMaxWidth()) {
-            FeatureTag("Reservation Available")
-            Spacer(modifier = Modifier.width(8.dp))
-            FeatureTag("Dine in Available")
-        }
     }
 }
 
