@@ -40,7 +40,7 @@ fun BusinessLoginView(
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
     var showSignupScreen by remember { mutableStateOf(false) }
-    var showSubscriptionScreen by remember { mutableStateOf(false) }
+    var showRestaurantNavigationBar by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -49,8 +49,8 @@ fun BusinessLoginView(
                 detectTapGestures(onTap = { focusManager.clearFocus() })
             }
     ) {
-        if (showSubscriptionScreen) {
-            SubscriptionScreen(onClose = { showSubscriptionScreen = false })
+        if (showRestaurantNavigationBar) {
+            RestaurantNavigationBar()
         } else {
             Column(
                 modifier = Modifier
@@ -127,7 +127,7 @@ fun BusinessLoginView(
                             valid = false
                         }
                         if (valid) {
-                            showSubscriptionScreen = true // Show Subscription Screen
+                            showRestaurantNavigationBar = true // Show Subscription Screen
                         }
                     },
                     modifier = Modifier.widthIn(500.dp).height(65.dp),
