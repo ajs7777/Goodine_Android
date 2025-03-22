@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.accompanist.pager)
     implementation(libs.accompanist.pager.indicators)
     implementation(libs.coil.compose)
+    implementation(libs.compose.material.icons.extended)
 }
 
 
