@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.abhijitsaha.goodine" />
+                  <option name="mobileSdkAppId" value="1:790558441423:android:47b2becc5e8558b9b0dcba" />
+                  <option name="projectId" value="goodine-e651a" />
+                  <option name="projectNumber" value="790558441423" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

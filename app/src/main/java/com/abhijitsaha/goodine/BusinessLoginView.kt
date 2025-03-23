@@ -26,12 +26,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BusinessLoginView(
     onBackClick: () -> Unit,
-    onForgotPasswordClick: () -> Unit
+    onForgotPasswordClick: () -> Unit,
+    businessAuthVM : BusinessAuthViewModel = viewModel ()
 ){
     val focusManager = LocalFocusManager.current
 
@@ -126,9 +128,20 @@ fun BusinessLoginView(
                             passwordError = "Password is required"
                             valid = false
                         }
+
                         if (valid) {
-                            showRestaurantNavigationBar = true // Show Subscription Screen
+                            businessAuthVM.signIn(
+                                email = email,
+                                password = password,
+                                onSuccess = {
+                                    showRestaurantNavigationBar = true
+                                },
+                                onFailure = { error ->
+                                    passwordError = error // Show the error under password field, or you can use Snackbar
+                                }
+                            )
                         }
+
                     },
                     modifier = Modifier.widthIn(500.dp).height(65.dp),
                     shape = RoundedCornerShape(12.dp)

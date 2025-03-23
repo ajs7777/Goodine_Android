@@ -25,16 +25,25 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun BusinessSignupScreen(onClose: () -> Unit) {
+fun BusinessSignupScreen(
+    onClose: () -> Unit,
+    businessAuthVM : BusinessAuthViewModel = viewModel()
+) {
     var businessName by remember { mutableStateOf("") }
     var businessType by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
+
+    //val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -220,7 +229,24 @@ fun BusinessSignupScreen(onClose: () -> Unit) {
             )
 
             Button(
-                onClick = {},
+                onClick = {
+                    businessAuthVM.signUp(
+                        name = businessName,
+                        type = businessType,
+                        city = city,
+                        address = address,
+                        email = email,
+                        password = password,
+                        onSuccess = {
+                            successMessage = "Business registered successfully"
+                            errorMessage = null
+                        },
+                        onFailure = { error ->
+                            errorMessage = error
+                            successMessage = null
+                        }
+                    )
+                },
                 modifier = Modifier
                     .widthIn(500.dp)
                     .height(60.dp),
@@ -232,6 +258,25 @@ fun BusinessSignupScreen(onClose: () -> Unit) {
             }
 
             Spacer(modifier = Modifier.height(5.dp))
+
+            // Show messages
+            successMessage?.let {
+                Text(
+                    text = it,
+                    color = Color(0xFF4CAF50),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
+            errorMessage?.let {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize(),

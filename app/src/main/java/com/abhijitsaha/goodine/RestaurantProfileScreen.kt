@@ -30,186 +30,251 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.material3.*
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun RestaurantProfileScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        // Image Section
-        RestaurantScreen()
+fun RestaurantProfileScreen(businessAuthVM: BusinessAuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
 
-        Spacer(modifier = Modifier.height(8.dp))
+    val restaurant = businessAuthVM.currentRestaurant
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val coroutineScope = rememberCoroutineScope()
+    var showSheet by remember { mutableStateOf(false) }
+    val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
 
-        Column (
+
+    LaunchedEffect(Unit) {
+        businessAuthVM.fetchCurrentRestaurant()
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .padding(horizontal = 16.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Open Now",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    modifier = Modifier
-                        .background(Color(0xFFCBE97B), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 5.dp)
-                )
+            // Image Section
+            RestaurantScreen()
 
-                Button(
-                    onClick = { /* Handle button click */ },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFE0E0E0),
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            ) {
+                Row(
                     modifier = Modifier
-                        .heightIn(min = 32.dp) // ⬅️ Set a lower min height
-                        .defaultMinSize(minHeight = 1.dp), // Override default minimum height
-                    contentPadding = PaddingValues(horizontal = 15.dp, vertical = 7.dp) // Reduced padding
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Edit Profile",
+                        text = "Open Now",
+                        color = Color.Black,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
+                        fontSize = 15.sp,
+                        modifier = Modifier
+                            .background(Color(0xFFCBE97B), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 8.dp, vertical = 5.dp)
+                    )
+
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                showSheet = true
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFE0E0E0),
+                            contentColor = Color.Black
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                        modifier = Modifier
+                            .heightIn(min = 32.dp)
+                            .defaultMinSize(minHeight = 1.dp),
+                        contentPadding = PaddingValues(horizontal = 15.dp, vertical = 7.dp)
+                    ) {
+                        Text(
+                            text = "Edit Profile",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                    }
+
+                }
+
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                // Restaurant Info
+                Text(
+                    text = restaurant?.name ?: "Loading...",
+                    fontSize = 35.sp,
+                    fontWeight = FontWeight.ExtraBold)
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(text = restaurant?.type ?: "Cuisine", fontSize = 18.sp, color = Color.Black)
+                        Text(text = "${restaurant?.city ?: ""}, | 2 Km", fontSize = 18.sp, color = Color.Gray)
+                    }
+
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = "⭐ 4.5(3k Ratings)",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        if (!restaurant?.averageCost.isNullOrEmpty()) {
+                            Text(
+                                text = "${restaurant.currencySymbol}${restaurant.averageCost} for two",
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                        }
+
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Location and Time
+                Text(text = "Loaction", fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Location Row
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 15.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Location",
+                        tint = Color.Black,
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = restaurant?.address ?: "Address not available",
+                        color = Color.Black,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
+                // Time Row
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AccessTime,
+                        contentDescription = "Timing",
+                        tint = Color.Black,
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .size(19.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "${timeFormat.format(restaurant?.openingTime ?: Date())} – ${timeFormat.format(restaurant?.closingTime ?: Date())}",
 
+                        color = Color.Black,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Features
+                Text(text = "Features", fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
+                Spacer(modifier = Modifier.height(20.dp))
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    FeatureTag("Reservation Available")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    FeatureTag("Dine in Available")
+                }
             }
-
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            // Restaurant Info
-            Text(text = "Grand Hotel", fontSize = 35.sp, fontWeight = FontWeight.ExtraBold)
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Row(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .padding(top = 30.dp)
+                    .padding(bottom = 60.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    Text(text = "Indian, Chinese", fontSize = 18.sp, color = Color.Black)
-                    Text(text = "Agartala | 2 Km", fontSize = 18.sp, color = Color.Gray)
-                }
+                TextButton(onClick = {
 
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    Text(text = "⭐ 4.5(3k Ratings)", fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                    Text(text = "₹600 for two", fontSize = 18.sp, color = Color.Black)
+                }) {
+                    Text(
+                        text = "Log Out",
+                        color = Color.Red,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            HorizontalDivider(
-                color = Color.LightGray,
-                thickness = 1.dp
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Location and Time
-            Text(text = "Loaction", fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Location Row
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 15.dp)
+        }
+        if (showSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showSheet = false
+                },
+                sheetState = sheetState,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "Location",
-                    tint = Color.Black,
+                Box(
                     modifier = Modifier
-                        .padding(end = 4.dp)
-                        .size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Agartala, Airport Road, Tripura",
-                    color = Color.Black,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            // Time Row
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AccessTime,
-                    contentDescription = "Timing",
-                    tint = Color.Black,
-                    modifier = Modifier
-                        .padding(2.dp)
-                        .size(19.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "10:00 AM – 11:00 PM",
-                    color = Color.Black,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            HorizontalDivider(
-                color = Color.LightGray,
-                thickness = 1.dp
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Features
-            Text(text = "Features", fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
-            Spacer(modifier = Modifier.height(20.dp))
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                FeatureTag("Reservation Available")
-                Spacer(modifier = Modifier.width(8.dp))
-                FeatureTag("Dine in Available")
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.9f)
+                ) {
+                    RestaurantDetailsScreen()
+                }
             }
         }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 30.dp)
-                .padding(bottom = 60.dp),
-            contentAlignment = Alignment.Center
-        ) {
-        TextButton(onClick = {}) {
-            Text(
-                text = "Log Out",
-                color = Color.Red,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal
-            )
-        }
-        }
+
     }
 }
 
@@ -221,7 +286,7 @@ fun FeatureTag(text: String) {
         fontWeight = FontWeight.Medium,
         modifier = Modifier
             .background(Color(0xFFE5E5EA), RoundedCornerShape(9.dp))
-            .padding(horizontal =   12.dp, vertical = 10.dp)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
     )
 }
 
