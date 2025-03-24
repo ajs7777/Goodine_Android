@@ -1,5 +1,6 @@
 package com.abhijitsaha.goodine
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,6 +22,11 @@ class BusinessAuthViewModel : ViewModel() {
     var successMessage: String? = null
     var currentRestaurant by mutableStateOf<Restaurant?>(null)
         private set
+    var isLoggedIn by mutableStateOf(auth.currentUser != null)
+        private set
+    var isLoading by mutableStateOf(false)
+        private set
+
 
     fun signUp(
         name: String,
@@ -74,6 +80,7 @@ class BusinessAuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 auth.signInWithEmailAndPassword(email, password).await()
+                isLoggedIn = true
                 successMessage = "Sign in successful"
                 onSuccess()
             } catch (e: Exception) {
@@ -83,19 +90,35 @@ class BusinessAuthViewModel : ViewModel() {
         }
     }
 
+
     fun signOut() {
-        auth.signOut()
-        successMessage = "Signed out successfully"
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                auth.signOut()
+                currentRestaurant = null
+                isLoggedIn = false
+                successMessage = "Signed out successfully"
+            } catch (e: Exception) {
+                errorMessage = e.message
+            } finally {
+                isLoading = false
+            }
+        }
     }
+
 
     fun fetchCurrentRestaurant(onError: (String) -> Unit = {}) {
         val userId = auth.currentUser?.uid ?: return
         viewModelScope.launch {
+            isLoading = true
             try {
                 val snapshot = restaurantCollection.document(userId).get().await()
                 currentRestaurant = snapshot.toObject(Restaurant::class.java)
             } catch (e: Exception) {
                 onError(e.message ?: "Unable to fetch restaurant details")
+            }finally {
+                isLoading = false
             }
         }
     }
@@ -107,4 +130,35 @@ class BusinessAuthViewModel : ViewModel() {
     fun isUserLoggedIn(): Boolean {
         return auth.currentUser != null
     }
+
+    fun updateRestaurant(
+        restaurant: Restaurant,
+        onSuccess: () -> Unit = {},
+        onError: (Exception) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            try {
+                // If the restaurant has an ID, update it. Otherwise, generate a new doc.
+                val docRef = if (restaurant.id.isNotEmpty()) {
+                    restaurantCollection.document(restaurant.id)
+                } else {
+                    restaurantCollection.document()
+                }
+
+                val restaurantWithId = restaurant.copy(id = docRef.id)
+                docRef.set(restaurantWithId).await()
+
+                // ✅ Fetch the latest data and update local state
+                val updatedSnapshot = docRef.get().await()
+                currentRestaurant = updatedSnapshot.toObject(Restaurant::class.java)
+
+                Log.d("RestaurantViewModel", "Restaurant updated: ${docRef.id}")
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("RestaurantViewModel", "Error updating restaurant: ${e.localizedMessage}")
+                onError(e)
+            }
+        }
+    }
+
 }

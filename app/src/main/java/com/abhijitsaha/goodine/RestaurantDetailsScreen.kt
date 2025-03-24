@@ -2,8 +2,7 @@ package com.abhijitsaha.goodine
 
 import android.app.TimePickerDialog
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,40 +47,86 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun RestaurantDetailsScreen() {
-    var name by remember { mutableStateOf("") }
-    var type by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
-    var state by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("") }
-    var zipcode by remember { mutableStateOf("") }
-    var costForTwo by remember { mutableStateOf("") }
+fun RestaurantDetailsScreen(
+    initialRestaurant: Restaurant = Restaurant(),
+    onSave: (Restaurant) -> Unit
+) {
+    var name by remember { mutableStateOf(initialRestaurant.name) }
+    var type by remember { mutableStateOf(initialRestaurant.type) }
+    var address by remember { mutableStateOf(initialRestaurant.address) }
+    var city by remember { mutableStateOf(initialRestaurant.city) }
+    var state by remember { mutableStateOf(initialRestaurant.state) }
+    var zipcode by remember { mutableStateOf(initialRestaurant.zipcode) }
+    var costForTwo by remember { mutableStateOf(initialRestaurant.averageCost ?: "") }
+    var currency by remember { mutableStateOf(initialRestaurant.currency) }
+    var openingTime by remember { mutableStateOf(initialRestaurant.openingTime) }
+    var closingTime by remember { mutableStateOf(initialRestaurant.closingTime) }
+    val imageUrls = remember { mutableStateListOf<String>().apply { addAll(initialRestaurant.imageUrls) } }
     var selectedCurrency by remember { mutableStateOf("₹ INR") }
 
-    val imageUris = remember { mutableStateListOf<Uri>() }
+    val context = LocalContext.current
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let { imageUris.add(it) }
-    }
+    val fromCalendar = remember { Calendar.getInstance() }
+    val toCalendar = remember { Calendar.getInstance() }
+    val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
+
+    val fromTimePicker = TimePickerDialog(
+        context,
+        { _, hour: Int, minute: Int ->
+            fromCalendar.set(Calendar.HOUR_OF_DAY, hour)
+            fromCalendar.set(Calendar.MINUTE, minute)
+            openingTime = fromCalendar.time
+        },
+        fromCalendar.get(Calendar.HOUR_OF_DAY),
+        fromCalendar.get(Calendar.MINUTE),
+        false
+    )
+
+    val toTimePicker = TimePickerDialog(
+        context,
+        { _, hour: Int, minute: Int ->
+            toCalendar.set(Calendar.HOUR_OF_DAY, hour)
+            toCalendar.set(Calendar.MINUTE, minute)
+            closingTime = toCalendar.time
+        },
+        toCalendar.get(Calendar.HOUR_OF_DAY),
+        toCalendar.get(Calendar.MINUTE),
+        false
+    )
+
     Scaffold(
         bottomBar = {
             SaveAndContinueButton(
                 onClick = {
-                    // TODO: Handle Save and Continue logic
+                    val updatedRestaurant = Restaurant(
+                        id = initialRestaurant.id,
+                        ownerName = initialRestaurant.ownerName,
+                        name = name,
+                        type = type,
+                        city = city,
+                        state = state,
+                        address = address,
+                        zipcode = zipcode,
+                        averageCost = costForTwo,
+                        openingTime = openingTime,
+                        closingTime = closingTime,
+                        imageUrls = imageUrls.toList(),
+                        currency = selectedCurrency,
+                        currencySymbol = if (currency == "INR") "₹" else "$"
+                    )
+                    onSave(updatedRestaurant)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -271,13 +316,39 @@ fun RestaurantDetailsScreen() {
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold
             )
-            TimeSelectionUI()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(220.dp)
+                ) {
+                    Text("From", color = Color(0xFFFF9800), fontWeight = FontWeight.Medium, fontSize = 20.sp)
+                    TimeBox(time = "${timeFormat.format(openingTime)}" , onClick = { fromTimePicker.show() })
+                }
 
-            ImagePickerGrid(
-                images = imageUris,
-                onAddClick = { launcher.launch("image/*") },
-                onRemoveClick = { imageUris.remove(it) }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(250.dp)
+                ) {
+
+                    Text("To", color = Color(0xFFFF9800), fontWeight = FontWeight.Medium, fontSize = 20.sp)
+                    TimeBox(time = "${timeFormat.format(closingTime)}", onClick = { toTimePicker.show() })
+                }
+            }
+
+            HorizontalDivider(
+                color = Color.LightGray,
+                thickness = 1.dp
             )
+
+//            ImagePickerGrid(
+//                images = imageUris,
+//                onAddClick = { launcher.launch("image/*") },
+//                onRemoveClick = { imageUris.remove(it) }
+//            )
 
             Spacer(modifier = Modifier
                 .height(50.dp)
@@ -363,73 +434,6 @@ fun CurrencyDropdown(
             }
         }
     }
-}
-
-@Composable
-fun TimeSelectionUI() {
-    var fromTime by remember { mutableStateOf("10:00 AM") }
-    var toTime by remember { mutableStateOf("11:00 PM") }
-
-    val context = LocalContext.current
-
-    val fromCalendar = remember { Calendar.getInstance() }
-    val toCalendar = remember { Calendar.getInstance() }
-
-    val fromTimePicker = TimePickerDialog(
-        context,
-        { _, hour: Int, minute: Int ->
-            fromCalendar.set(Calendar.HOUR_OF_DAY, hour)
-            fromCalendar.set(Calendar.MINUTE, minute)
-            val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
-            fromTime = sdf.format(fromCalendar.time)
-        },
-        fromCalendar.get(Calendar.HOUR_OF_DAY),
-        fromCalendar.get(Calendar.MINUTE),
-        false
-    )
-
-    val toTimePicker = TimePickerDialog(
-        context,
-        { _, hour: Int, minute: Int ->
-            toCalendar.set(Calendar.HOUR_OF_DAY, hour)
-            toCalendar.set(Calendar.MINUTE, minute)
-            val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
-            toTime = sdf.format(toCalendar.time)
-        },
-        toCalendar.get(Calendar.HOUR_OF_DAY),
-        toCalendar.get(Calendar.MINUTE),
-        false
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(230.dp)
-        ) {
-            Text("From", color = Color(0xFFFF9800), fontWeight = FontWeight.Medium, fontSize = 20.sp)
-            TimeBox(time = fromTime, onClick = { fromTimePicker.show() })
-        }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(250.dp)
-        ) {
-
-            Text("To", color = Color(0xFFFF9800), fontWeight = FontWeight.Medium, fontSize = 20.sp)
-            TimeBox(time = toTime, onClick = { toTimePicker.show() })
-        }
-    }
-
-    HorizontalDivider(
-        color = Color.LightGray,
-        thickness = 1.dp
-    )
-
-
 }
 
 @Composable

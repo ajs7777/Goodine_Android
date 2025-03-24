@@ -16,6 +16,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,8 +32,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             GoodineTheme {
                 val navController = rememberNavController()
+
+                val user = FirebaseAuth.getInstance().currentUser
+                val startDestination = if (user != null) "RestaurantNavigationBar" else "MainLoginPage"
+
                 Scaffold { paddingValues ->
-                    AppNavigation(navController, Modifier.padding(paddingValues))
+                    AppNavigation(
+                        navController = navController,
+                        modifier = Modifier.padding(paddingValues),
+                        startDestination = startDestination
+                    )
                 }
             }
         }
@@ -45,26 +54,35 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
+fun AppNavigation(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    startDestination: String
+) {
     AnimatedNavHost(
         navController = navController,
-        startDestination = "LoginScreen",
+        startDestination = startDestination,
         modifier = modifier,
         enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(500)) },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(500)) },
         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(500)) },
         popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(500)) }
     ) {
-        composable("LoginScreen") {
-            LoginWithNumberView(
+        composable("MainLoginPage") {
+            MainLoginPage(
                 onNavigateToBusinessLogin = { navController.navigate("BusinessLoginScreen") }
             )
         }
         composable("BusinessLoginScreen") {
             BusinessLoginView(
+                navController = navController,
                 onBackClick = { navController.popBackStack() },
                 onForgotPasswordClick = { /* Handle forgot password */ }
             )
         }
+        composable("RestaurantNavigationBar") {
+            RestaurantNavigationBar(navController = navController)
+        }
+
     }
 }

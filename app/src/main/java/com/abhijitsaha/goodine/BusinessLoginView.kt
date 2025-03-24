@@ -20,17 +20,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BusinessLoginView(
+    navController: NavHostController,
     onBackClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     businessAuthVM : BusinessAuthViewModel = viewModel ()
@@ -52,7 +53,7 @@ fun BusinessLoginView(
             }
     ) {
         if (showRestaurantNavigationBar) {
-            RestaurantNavigationBar()
+            RestaurantNavigationBar(navController = navController)
         } else {
             Column(
                 modifier = Modifier
@@ -225,14 +226,6 @@ fun BusinessLoginView(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewBusinessLoginView() {
-    BusinessLoginView(
-        onBackClick = {},
-        onForgotPasswordClick = {}
-    )
-}
 @Composable
 fun BoldArrowBackIcon(
     onClick: () -> Unit,

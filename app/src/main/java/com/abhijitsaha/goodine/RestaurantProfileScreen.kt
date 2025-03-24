@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavHostController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -45,7 +46,10 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun RestaurantProfileScreen(businessAuthVM: BusinessAuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun RestaurantProfileScreen(
+    navController: NavHostController,
+    businessAuthVM: BusinessAuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+) {
 
     val restaurant = businessAuthVM.currentRestaurant
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -57,6 +61,17 @@ fun RestaurantProfileScreen(businessAuthVM: BusinessAuthViewModel = androidx.lif
     LaunchedEffect(Unit) {
         businessAuthVM.fetchCurrentRestaurant()
     }
+
+    if (businessAuthVM.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color.Gray)
+        }
+    } else {
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -136,7 +151,7 @@ fun RestaurantProfileScreen(businessAuthVM: BusinessAuthViewModel = androidx.lif
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         Text(text = restaurant?.type ?: "Cuisine", fontSize = 18.sp, color = Color.Black)
-                        Text(text = "${restaurant?.city ?: ""}, | 2 Km", fontSize = 18.sp, color = Color.Gray)
+                        Text(text = "${restaurant?.city ?: ""} | 2 Km", fontSize = 18.sp, color = Color.Gray)
                     }
 
                     Column(
@@ -244,9 +259,15 @@ fun RestaurantProfileScreen(businessAuthVM: BusinessAuthViewModel = androidx.lif
                     .padding(bottom = 60.dp),
                 contentAlignment = Alignment.Center
             ) {
-                TextButton(onClick = {
-
-                }) {
+                TextButton(
+                    onClick = {
+                        businessAuthVM.signOut()
+                        navController.navigate("MainLoginPage") {
+                            popUpTo("RestaurantNavigationBar") { inclusive = true }
+                        }
+                    },
+                    enabled = !businessAuthVM.isLoading
+                ) {
                     Text(
                         text = "Log Out",
                         color = Color.Red,
@@ -270,11 +291,27 @@ fun RestaurantProfileScreen(businessAuthVM: BusinessAuthViewModel = androidx.lif
                         .fillMaxWidth()
                         .fillMaxHeight(0.9f)
                 ) {
-                    RestaurantDetailsScreen()
+                    restaurant?.let {
+                        RestaurantDetailsScreen(
+                            initialRestaurant = it,
+                            onSave = { updated ->
+                                businessAuthVM.updateRestaurant(updated)
+                            }
+                        )
+                    } ?: run {
+                        // Show loading indicator or fallback UI
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
             }
         }
 
+    }
     }
 }
 

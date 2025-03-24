@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun LoginWithNumberView(
+fun MainLoginPage(
     onNavigateToBusinessLogin: () -> Unit
 ) {
 
