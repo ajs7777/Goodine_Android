@@ -296,6 +296,10 @@ fun RestaurantProfileScreen(
                             initialRestaurant = it,
                             onSave = { updated ->
                                 businessAuthVM.updateRestaurant(updated)
+                                coroutineScope.launch {
+                                    sheetState.hide()
+                                    showSheet = false
+                                }
                             }
                         )
                     } ?: run {

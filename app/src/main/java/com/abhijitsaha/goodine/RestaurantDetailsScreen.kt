@@ -71,10 +71,10 @@ fun RestaurantDetailsScreen(
     var zipcode by remember { mutableStateOf(initialRestaurant.zipcode) }
     var costForTwo by remember { mutableStateOf(initialRestaurant.averageCost ?: "") }
     var currency by remember { mutableStateOf(initialRestaurant.currency) }
+    var currencySymbol by remember { mutableStateOf(initialRestaurant.currencySymbol) }
     var openingTime by remember { mutableStateOf(initialRestaurant.openingTime) }
     var closingTime by remember { mutableStateOf(initialRestaurant.closingTime) }
     val imageUrls = remember { mutableStateListOf<String>().apply { addAll(initialRestaurant.imageUrls) } }
-    var selectedCurrency by remember { mutableStateOf("₹ INR") }
 
     val context = LocalContext.current
 
@@ -123,8 +123,8 @@ fun RestaurantDetailsScreen(
                         openingTime = openingTime,
                         closingTime = closingTime,
                         imageUrls = imageUrls.toList(),
-                        currency = selectedCurrency,
-                        currencySymbol = if (currency == "INR") "₹" else "$"
+                        currency = currency,
+                        currencySymbol = currencySymbol,
                     )
                     onSave(updatedRestaurant)
                 },
@@ -304,8 +304,11 @@ fun RestaurantDetailsScreen(
                 )
 
                 CurrencyDropdown(
-                    selectedCurrency = selectedCurrency,
-                    onCurrencySelected = { selectedCurrency = it }
+                    selectedCurrency = currency,
+                    onCurrencySelected = {
+                        currency = it.substringAfter(" ") // Extract "INR"
+                        currencySymbol = it.substringBefore(" ") // Extract "₹"
+                    }
                 )
 
             }
@@ -323,7 +326,7 @@ fun RestaurantDetailsScreen(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(220.dp)
+                    horizontalArrangement = Arrangement.spacedBy(225.dp)
                 ) {
                     Text("From", color = Color(0xFFFF9800), fontWeight = FontWeight.Medium, fontSize = 20.sp)
                     TimeBox(time = "${timeFormat.format(openingTime)}" , onClick = { fromTimePicker.show() })
