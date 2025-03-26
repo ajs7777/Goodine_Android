@@ -1,8 +1,11 @@
 package com.abhijitsaha.goodine
 
 import android.app.TimePickerDialog
+import android.content.Context
 import android.net.Uri
-
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,18 +54,23 @@ import androidx.compose.ui.platform.LocalContext
 import java.util.Calendar
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
-
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RestaurantDetailsScreen(
     initialRestaurant: Restaurant = Restaurant(),
-    onSave: (Restaurant) -> Unit
+    onSave: (Restaurant) -> Unit,
+    businessAuthViewModel: BusinessAuthViewModel
 ) {
     var name by remember { mutableStateOf(initialRestaurant.name) }
     var type by remember { mutableStateOf(initialRestaurant.type) }
@@ -75,6 +84,18 @@ fun RestaurantDetailsScreen(
     var openingTime by remember { mutableStateOf(initialRestaurant.openingTime) }
     var closingTime by remember { mutableStateOf(initialRestaurant.closingTime) }
     val imageUrls = remember { mutableStateListOf<String>().apply { addAll(initialRestaurant.imageUrls) } }
+
+    val selectedImages = remember { mutableStateListOf<Uri>() }
+    val coroutineScope = rememberCoroutineScope()
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris: List<Uri> ->
+        if (uris.isNotEmpty()) {
+            selectedImages.addAll(uris)
+        }
+    }
+
 
     val context = LocalContext.current
 
@@ -110,23 +131,33 @@ fun RestaurantDetailsScreen(
         bottomBar = {
             SaveAndContinueButton(
                 onClick = {
-                    val updatedRestaurant = Restaurant(
-                        id = initialRestaurant.id,
-                        ownerName = initialRestaurant.ownerName,
-                        name = name,
-                        type = type,
-                        city = city,
-                        state = state,
-                        address = address,
-                        zipcode = zipcode,
-                        averageCost = costForTwo,
-                        openingTime = openingTime,
-                        closingTime = closingTime,
-                        imageUrls = imageUrls.toList(),
-                        currency = currency,
-                        currencySymbol = currencySymbol,
-                    )
-                    onSave(updatedRestaurant)
+                    coroutineScope.launch {
+                        val uploadedImageUrls = mutableListOf<String>()
+
+                        selectedImages.forEach { uri ->
+                            val url = businessAuthViewModel.uploadImageToFirebase(uri)
+                            uploadedImageUrls.add(url)
+                        }
+
+                        val updatedRestaurant = Restaurant(
+                            id = initialRestaurant.id,
+                            ownerName = initialRestaurant.ownerName,
+                            name = name,
+                            type = type,
+                            city = city,
+                            state = state,
+                            address = address,
+                            zipcode = zipcode,
+                            averageCost = costForTwo,
+                            openingTime = openingTime,
+                            closingTime = closingTime,
+                            imageUrls = imageUrls + uploadedImageUrls, // Combine old + new
+                            currency = currency,
+                            currencySymbol = currencySymbol,
+                        )
+
+                        onSave(updatedRestaurant)
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -317,7 +348,7 @@ fun RestaurantDetailsScreen(
             Text(
                 text = "Opening Hours:",
                 fontSize = 25.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.ExtraBold
             )
             Column(
                 modifier = Modifier
@@ -347,11 +378,34 @@ fun RestaurantDetailsScreen(
                 thickness = 1.dp
             )
 
-//            ImagePickerGrid(
-//                images = imageUris,
-//                onAddClick = { launcher.launch("image/*") },
-//                onRemoveClick = { imageUris.remove(it) }
-//            )
+
+            ImagePickerScreen(
+                imageUrls = imageUrls,
+                selectedImages = selectedImages,
+                isUploading = businessAuthViewModel.isUploadingImage,
+                onAddImageClick = {
+                    if (!businessAuthViewModel.isUploadingImage) {
+                        imagePickerLauncher.launch("image/*")
+                    }
+                },
+                onRemoveImage = { uri ->
+                    selectedImages.remove(uri)
+                },
+                onRemovalImage = { url ->
+                    coroutineScope.launch {
+                        try {
+                            val isDeleted = businessAuthViewModel.deleteImageFromFirebase(url)
+                            if (isDeleted) {
+                                imageUrls.remove(url)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("DeleteImage", "Failed to delete image: ${e.message}")
+                        }
+                    }
+                }
+
+            )
+
 
             Spacer(modifier = Modifier
                 .height(50.dp)
@@ -456,55 +510,6 @@ fun TimeBox(time: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun ImagePickerGrid(
-    modifier: Modifier = Modifier,
-    images: List<Uri>,
-    onAddClick: () -> Unit,
-    onRemoveClick: (Uri) -> Unit
-) {
-    LazyRow(modifier = modifier.padding(8.dp)) {
-        item {
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .background(Color.LightGray, RoundedCornerShape(8.dp))
-                    .clickable { onAddClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.Black)
-            }
-        }
-
-        items(images.size) { index ->
-            val uri = images[index]
-            Box(
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .size(100.dp)
-            ) {
-                AsyncImage(
-                    model = uri,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(8.dp)),
-                    contentScale = ContentScale.Crop
-                )
-
-                IconButton(
-                    onClick = { onRemoveClick(uri) },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(24.dp)
-                        .background(Color.Red, CircleShape)
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = "Remove", tint = Color.White)
-                }
-            }
-        }
-    }
-}
-@Composable
 fun SaveAndContinueButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
@@ -533,4 +538,175 @@ fun SaveAndContinueButton(
     }
 }
 
+@Composable
+fun ImagePickerScreen(
+    imageUrls: List<String>,
+    selectedImages: List<Uri>,
+    isUploading: Boolean, // <-- Add this
+    onAddImageClick: () -> Unit,
+    onRemoveImage: (Uri) -> Unit,
+    onRemovalImage: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
 
+
+    LazyRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .background(Color.LightGray, RoundedCornerShape(8.dp))
+                    .clickable(enabled = !isUploading) { onAddImageClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                if (isUploading) {
+                    CircularProgressIndicator(
+                        color = Color(0xFF595959),
+                        modifier = Modifier.size(24.dp), strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Images",
+                        tint = Color.DarkGray,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
+        }
+
+        itemsIndexed(selectedImages) { index, uri ->
+            if (isUploading) {
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .background(Color.LightGray, RoundedCornerShape(8.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = Color(0xFF595959),
+                        modifier = Modifier.size(24.dp), strokeWidth = 2.dp
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                ) {
+                    AsyncImage(
+                        model = uri,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    // X icon to delete
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(20.dp)
+                            .background(Color.Red, CircleShape)
+                            .clickable {
+                                onRemoveImage(uri)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Remove",
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+
+        }
+
+        itemsIndexed(imageUrls) { index, url ->
+            if (isUploading) {
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .background(Color.LightGray, RoundedCornerShape(8.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = Color(0xFF595959),
+                        modifier = Modifier.size(24.dp), strokeWidth = 2.dp
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                ) {
+                    CachedAsyncImage(
+                        imageUrl = url,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    // X icon to delete
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(20.dp)
+                            .background(Color.Red, CircleShape)
+                            .clickable {
+                                onRemovalImage(url)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Remove",
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+@Composable
+fun CachedAsyncImage(
+    modifier: Modifier = Modifier,
+    imageUrl: String,
+    contentDescription: String? = null,
+    contentScale: ContentScale = ContentScale.Crop
+
+) {
+    val context = LocalContext.current
+    val customImageLoader = remember { createCustomImageLoader(context) }
+
+    AsyncImage(
+        model = ImageRequest.Builder(context)
+            .data(imageUrl)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .build(),
+        contentDescription = contentDescription,
+        imageLoader = customImageLoader,
+        modifier = modifier,
+        contentScale = ContentScale.Crop
+    )
+}
+
+
+fun createCustomImageLoader(context: Context): ImageLoader {
+    return ImageLoader.Builder(context)
+        .crossfade(true)
+        .diskCachePolicy(CachePolicy.ENABLED) // Enables disk cache
+        .memoryCachePolicy(CachePolicy.ENABLED) // Enables memory cache
+        .respectCacheHeaders(false)
+        .build()
+}

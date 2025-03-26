@@ -1,16 +1,23 @@
 package com.abhijitsaha.goodine
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.storage
+import java.util.UUID
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class BusinessAuthViewModel : ViewModel() {
 
@@ -25,6 +32,9 @@ class BusinessAuthViewModel : ViewModel() {
     var isLoggedIn by mutableStateOf(auth.currentUser != null)
         private set
     var isLoading by mutableStateOf(false)
+        private set
+
+    var isUploadingImage by mutableStateOf(false)
         private set
 
 
@@ -160,5 +170,44 @@ class BusinessAuthViewModel : ViewModel() {
             }
         }
     }
+
+    suspend fun uploadImageToFirebase(uri: Uri): String = suspendCoroutine { continuation ->
+        isUploadingImage = true
+        val storageRef = Firebase.storage.reference
+        val imageRef = storageRef.child("business_users/${UUID.randomUUID()}.jpg")
+
+        imageRef.putFile(uri)
+            .continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let { throw it }
+                }
+                imageRef.downloadUrl
+            }
+            .addOnSuccessListener { downloadUrl ->
+                isUploadingImage = false
+                continuation.resume(downloadUrl.toString())
+            }
+            .addOnFailureListener { exception ->
+                isUploadingImage = false
+                continuation.resumeWithException(exception)
+            }
+    }
+
+    suspend fun deleteImageFromFirebase(imageUrl: String): Boolean = suspendCoroutine { continuation ->
+        try {
+            val storageRef = Firebase.storage.getReferenceFromUrl(imageUrl)
+
+            storageRef.delete()
+                .addOnSuccessListener {
+                    continuation.resume(true)
+                }
+                .addOnFailureListener { exception ->
+                    continuation.resumeWithException(exception)
+                }
+        } catch (e: Exception) {
+            continuation.resumeWithException(e)
+        }
+    }
+
 
 }

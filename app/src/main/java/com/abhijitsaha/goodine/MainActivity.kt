@@ -16,12 +16,13 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        FirebaseApp.initializeApp(this)
         // Allow both orientations only for tablets
         if (isTablet()) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED

@@ -1,6 +1,5 @@
 package com.abhijitsaha.goodine
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,6 +39,7 @@ import androidx.navigation.NavHostController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,7 +79,8 @@ fun RestaurantProfileScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             // Image Section
-            RestaurantScreen()
+            RestaurantScreen(images = restaurant?.imageUrls ?: emptyList())
+
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -199,7 +199,7 @@ fun RestaurantProfileScreen(
                         tint = Color.Black,
                         modifier = Modifier
                             .padding(end = 4.dp)
-                            .size(20.dp)
+                            .size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
@@ -220,7 +220,7 @@ fun RestaurantProfileScreen(
                         tint = Color.Black,
                         modifier = Modifier
                             .padding(2.dp)
-                            .size(19.dp)
+                            .size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
@@ -294,6 +294,7 @@ fun RestaurantProfileScreen(
                     restaurant?.let {
                         RestaurantDetailsScreen(
                             initialRestaurant = it,
+                            businessAuthViewModel = businessAuthVM,
                             onSave = { updated ->
                                 businessAuthVM.updateRestaurant(updated)
                                 coroutineScope.launch {
@@ -333,49 +334,43 @@ fun FeatureTag(text: String) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun RestaurantImageCarousel(images: List<Int>) {
+fun RestaurantImageCarousel(images: List<String>) {
     val pagerState = rememberPagerState { images.size }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp) // Height of the image carousel
+            .height(250.dp)
     ) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { page ->
-            Image(
-                painter = painterResource(id = images[page]),
+            CachedAsyncImage(
+                imageUrl = images[page],
                 contentDescription = "Restaurant Image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
         }
 
-        // Overlay the custom pager indicator at the bottom center
         CustomPagerIndicator(
             pageCount = images.size,
             currentPage = pagerState.currentPage,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 12.dp) // adjust to position closer/further from bottom
+                .padding(bottom = 12.dp)
         )
     }
 }
 
 @Composable
-fun RestaurantScreen() {
-    val restaurantImages = listOf(
-        R.drawable.restaurant1,
-        R.drawable.restaurant2,
-        R.drawable.restaurant3
-    )
-
+fun RestaurantScreen(images: List<String>) {
     Column {
-        RestaurantImageCarousel(images = restaurantImages)
+        RestaurantImageCarousel(images = images)
     }
 }
+
 
 
 @Composable
@@ -406,4 +401,6 @@ fun CustomPagerIndicator(
         }
     }
 }
+
+
 
