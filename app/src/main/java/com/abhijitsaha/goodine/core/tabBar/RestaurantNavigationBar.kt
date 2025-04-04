@@ -1,4 +1,4 @@
-package com.abhijitsaha.goodine
+package com.abhijitsaha.goodine.core.tabBar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.abhijitsaha.goodine.R
+import com.abhijitsaha.goodine.core.restaurantDetails.RestaurantProfileScreen
 
 
 @Composable

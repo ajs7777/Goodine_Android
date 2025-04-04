@@ -1,4 +1,4 @@
-package com.abhijitsaha.goodine
+package com.abhijitsaha.goodine.core.authentication.view
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -26,6 +26,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.abhijitsaha.goodine.R
+import com.abhijitsaha.goodine.core.authentication.viewModel.BusinessAuthViewModel
 
 @Composable
 fun BusinessSignupScreen(

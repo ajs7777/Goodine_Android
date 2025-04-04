@@ -1,5 +1,9 @@
-package com.abhijitsaha.goodine
+package com.abhijitsaha.goodine.core.restaurantDetails
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,19 +39,24 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.abhijitsaha.goodine.R
+import com.abhijitsaha.goodine.core.authentication.viewModel.BusinessAuthViewModel
+import com.abhijitsaha.goodine.core.restaurantMenu.viewModel.MenuViewModel
+import com.abhijitsaha.goodine.core.restaurantMenu.views.MenuScreen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RestaurantProfileScreen(
     navController: NavHostController,
-    businessAuthVM: BusinessAuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    businessAuthVM: BusinessAuthViewModel = viewModel(),
 ) {
 
     val restaurant = businessAuthVM.currentRestaurant
@@ -55,12 +64,13 @@ fun RestaurantProfileScreen(
     val coroutineScope = rememberCoroutineScope()
     var showSheet by remember { mutableStateOf(false) }
     val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
+    var showMenuScreen by remember { mutableStateOf(false) }
+    val menuViewModel: MenuViewModel = viewModel()
 
 
     LaunchedEffect(Unit) {
         businessAuthVM.fetchCurrentRestaurant()
     }
-
     if (businessAuthVM.isLoading) {
         Box(
             modifier = Modifier
@@ -80,10 +90,7 @@ fun RestaurantProfileScreen(
         ) {
             // Image Section
             RestaurantScreen(images = restaurant?.imageUrls ?: emptyList())
-
-
             Spacer(modifier = Modifier.height(8.dp))
-
             Column(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -272,12 +279,18 @@ fun RestaurantProfileScreen(
                         text = "Log Out",
                         color = Color.Red,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
 
         }
+        FloatingMenuButton(
+            onClick = {
+                showMenuScreen = true
+            }
+        )
+
         if (showSheet) {
             ModalBottomSheet(
                 onDismissRequest = {
@@ -317,6 +330,17 @@ fun RestaurantProfileScreen(
         }
 
     }
+    }
+
+    AnimatedVisibility(
+        visible = showMenuScreen,
+        enter = slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(durationMillis = 500)),
+        exit = slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(durationMillis = 500))
+    ) {
+        MenuScreen(
+            viewModel = menuViewModel,
+            onBack = { showMenuScreen = false }
+        )
     }
 }
 
@@ -401,6 +425,44 @@ fun CustomPagerIndicator(
         }
     }
 }
+
+@Composable
+fun FloatingMenuButton(
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        Button(
+            onClick = onClick,
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Black,
+                contentColor = Color.White
+            ),
+            modifier = Modifier
+                .shadow(
+                    elevation = 10.dp,
+                    shape = RoundedCornerShape(12.dp),
+                    ambientColor = Color.Black.copy(alpha = 0.7f),
+                    spotColor = Color.Black.copy(alpha = 0.7f)
+                ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp),
+            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 10.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.businessicon), // Replace with your menu icon
+                contentDescription = "Menu Icon",
+                modifier = Modifier.size(34.dp)
+            )
+            Text(text = "Menu", fontSize = 18.sp, modifier = Modifier.padding(horizontal = 6.dp))
+        }
+    }
+}
+
 
 
 

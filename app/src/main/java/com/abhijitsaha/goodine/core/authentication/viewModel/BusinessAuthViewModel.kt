@@ -1,23 +1,24 @@
-package com.abhijitsaha.goodine
+package com.abhijitsaha.goodine.core.authentication.viewModel
 
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.util.Date
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import com.abhijitsaha.goodine.models.Restaurant
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.storage
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.util.Date
 import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 class BusinessAuthViewModel : ViewModel() {
 
@@ -193,21 +194,22 @@ class BusinessAuthViewModel : ViewModel() {
             }
     }
 
-    suspend fun deleteImageFromFirebase(imageUrl: String): Boolean = suspendCoroutine { continuation ->
-        try {
-            val storageRef = Firebase.storage.getReferenceFromUrl(imageUrl)
+    suspend fun deleteImageFromFirebase(imageUrl: String): Boolean =
+        suspendCoroutine { continuation ->
+            try {
+                val storageRef = Firebase.storage.getReferenceFromUrl(imageUrl)
 
-            storageRef.delete()
-                .addOnSuccessListener {
-                    continuation.resume(true)
-                }
-                .addOnFailureListener { exception ->
-                    continuation.resumeWithException(exception)
-                }
-        } catch (e: Exception) {
-            continuation.resumeWithException(e)
+                storageRef.delete()
+                    .addOnSuccessListener {
+                        continuation.resume(true)
+                    }
+                    .addOnFailureListener { exception ->
+                        continuation.resumeWithException(exception)
+                    }
+            } catch (e: Exception) {
+                continuation.resumeWithException(e)
+            }
         }
-    }
 
 
 }

@@ -1,4 +1,4 @@
-package com.abhijitsaha.goodine
+package com.abhijitsaha.goodine.core.restaurantDetails
 
 import android.app.TimePickerDialog
 import android.content.Context
@@ -61,6 +61,8 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.abhijitsaha.goodine.core.authentication.viewModel.BusinessAuthViewModel
+import com.abhijitsaha.goodine.models.Restaurant
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale

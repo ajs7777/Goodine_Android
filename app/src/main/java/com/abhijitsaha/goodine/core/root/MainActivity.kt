@@ -1,4 +1,4 @@
-package com.abhijitsaha.goodine
+package com.abhijitsaha.goodine.core.root
 
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -14,6 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import com.abhijitsaha.goodine.ui.theme.GoodineTheme
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import com.abhijitsaha.goodine.core.tabBar.RestaurantNavigationBar
+import com.abhijitsaha.goodine.core.authentication.view.BusinessLoginView
+import com.abhijitsaha.goodine.core.authentication.view.MainLoginPage
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.firebase.FirebaseApp

@@ -1,4 +1,4 @@
-package com.abhijitsaha.goodine
+package com.abhijitsaha.goodine.core.authentication.view
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -27,6 +27,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.abhijitsaha.goodine.R
+import com.abhijitsaha.goodine.core.authentication.viewModel.BusinessAuthViewModel
+import com.abhijitsaha.goodine.core.tabBar.RestaurantNavigationBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

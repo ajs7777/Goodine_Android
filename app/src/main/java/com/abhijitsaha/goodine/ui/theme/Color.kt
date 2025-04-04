@@ -13,3 +13,5 @@ val orange = Color(0xFFED8F1E)
 val lightGray = Color(0xFF595959)
 
 val lemonGreen = Color(0xFFCBE97B)
+
+val switchGreen = Color(0xFF33B939)
