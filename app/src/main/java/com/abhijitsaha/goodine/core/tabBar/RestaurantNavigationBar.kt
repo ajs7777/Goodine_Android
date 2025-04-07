@@ -16,13 +16,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.abhijitsaha.goodine.R
 import com.abhijitsaha.goodine.core.restaurantDetails.RestaurantProfileScreen
+import com.abhijitsaha.goodine.core.tableSelectionProcess.view.TableScreen
 
 
 @Composable
 fun RestaurantNavigationBar(
     navController: NavHostController
 ) {
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    var selectedIndex by remember { mutableIntStateOf(1) }
 
     val items = listOf(
         BottomNavItem("Profile", R.drawable.fork_knife),
@@ -40,7 +41,7 @@ fun RestaurantNavigationBar(
         ) {
             when (selectedIndex) {
                 0 -> RestaurantProfileScreen(navController = navController)
-               // 1 -> TableScreen()
+                1 -> TableScreen()
                // 2 -> OrdersScreen()
             }
         }

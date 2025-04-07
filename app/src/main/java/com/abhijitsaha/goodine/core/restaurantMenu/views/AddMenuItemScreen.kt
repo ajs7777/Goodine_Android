@@ -57,12 +57,12 @@ fun AddMenuItemScreen(
     onCancel: () -> Unit,
     onDone: () -> Unit
 ) {
-    var name by remember { mutableStateOf(existingItem?.name ?: "") }
-    var description by remember { mutableStateOf(existingItem?.description ?: "") }
-    var price by remember { mutableStateOf(existingItem?.price?.toString() ?: "") }
-    var isVeg by remember { mutableStateOf(existingItem?.isVeg ?: false) }
+    var name by remember { mutableStateOf(existingItem?.foodname ?: "") }
+    var description by remember { mutableStateOf(existingItem?.foodDescription ?: "") }
+    var price by remember { mutableStateOf(existingItem?.foodPrice?.toString() ?: "") }
+    var isVeg by remember { mutableStateOf(existingItem?.veg ?: false) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var imageUrl by remember { mutableStateOf(existingItem?.imageUrl) } // Store existing image URL
+    var imageUrl by remember { mutableStateOf(existingItem?.foodImage) } // Store existing image URL
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -92,11 +92,11 @@ fun AddMenuItemScreen(
                                 if (existingItem != null) {
                                     viewModel.updateMenuItem(
                                         existingItem.copy(
-                                            name = name,
-                                            description = description,
-                                            price = finalPrice,
-                                            isVeg = isVeg,
-                                            imageUrl = imageUrl ?: existingItem.imageUrl
+                                            foodname = name,
+                                            foodDescription = description,
+                                            foodPrice = finalPrice,
+                                            veg = isVeg,
+                                            foodImage = imageUrl ?: existingItem.foodImage
                                         ),
                                         imageUri
                                     )
@@ -133,7 +133,6 @@ fun AddMenuItemScreen(
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },

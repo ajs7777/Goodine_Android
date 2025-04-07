@@ -454,7 +454,7 @@ fun FloatingMenuButton(
             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 10.dp)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.businessicon), // Replace with your menu icon
+                painter = painterResource(id = R.drawable.businessicon),
                 contentDescription = "Menu Icon",
                 modifier = Modifier.size(34.dp)
             )

@@ -84,11 +84,11 @@ class MenuViewModel : ViewModel() {
 
                             MenuItem(
                                 id = id,
-                                name = name,
-                                description = description,
-                                price = price,
-                                imageUrl = imageUrl,
-                                isVeg = isVeg
+                                foodname = name,
+                                foodDescription = description,
+                                foodPrice = price,
+                                foodImage = imageUrl,
+                                veg = isVeg
                             )
                         }
                     }
@@ -104,15 +104,15 @@ class MenuViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
-            val imageUrl = newImageUri?.let { uploadImage(it, item.id) } ?: item.imageUrl
+            val imageUrl = newImageUri?.let { uploadImage(it, item.id) } ?: item.foodImage
 
             saveItemToFirestore(
                 userId = userId,
                 id = item.id,
-                name = item.name,
-                description = item.description,
-                price = item.price,
-                isVeg = item.isVeg,
+                name = item.foodname,
+                description = item.foodDescription,
+                price = item.foodPrice,
+                isVeg = item.veg,
                 imageUrl = imageUrl
             )
         }

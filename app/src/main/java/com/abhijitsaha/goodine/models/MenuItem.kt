@@ -4,9 +4,9 @@ import java.util.UUID
 
 data class MenuItem(
     val id: String = UUID.randomUUID().toString(),
-    val name: String = "",
-    val description: String = "",
-    val price: Double = 0.0,
-    val isVeg: Boolean = false,
-    val imageUrl: String = ""
+    val foodname: String = "",
+    val foodDescription: String = "",
+    val foodPrice: Double = 0.0,
+    val veg: Boolean = false,
+    val foodImage: String = ""
 )

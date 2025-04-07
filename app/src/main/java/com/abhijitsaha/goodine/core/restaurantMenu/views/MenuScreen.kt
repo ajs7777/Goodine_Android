@@ -180,7 +180,7 @@ fun MenuItemCard(
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.LightGray)
         ) {
-            if (item.imageUrl.isEmpty()) {
+            if (item.foodImage.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -199,10 +199,10 @@ fun MenuItemCard(
             } else {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(item.imageUrl)
+                        .data(item.foodImage)
                         .crossfade(true)
                         .build(),
-                    contentDescription = item.name,
+                    contentDescription = item.foodname,
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(12.dp)),
@@ -219,7 +219,7 @@ fun MenuItemCard(
                     .padding(6.dp)
                     .size(20.dp)
             ) {
-                VegNonVegIcon(isVeg = item.isVeg )
+                VegNonVegIcon(isVeg = item.veg )
             }
         }
 
@@ -230,20 +230,20 @@ fun MenuItemCard(
             verticalArrangement = Arrangement.spacedBy((-2).dp)
         ) {
             Text(
-                item.name,
+                item.foodname,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 18.sp
             )
-            if (item.description.isNotBlank()) {
+            if (item.foodDescription.isNotBlank()) {
                 Text(
-                    item.description,
+                    item.foodDescription,
                     color = Color.Gray,
                     fontSize = 13.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Text("₹${item.price}", color = Color.Gray)
+            Text("₹${item.foodPrice}", color = Color.Gray)
         }
 
 
