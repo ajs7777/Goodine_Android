@@ -177,22 +177,32 @@ class MenuViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                firestore.collection("business_users")
+                val docRef = firestore.collection("business_users")
                     .document(userId)
                     .collection("menu")
                     .document(itemId)
-                    .delete()
-                    .await()
+
+                val snapshot = docRef.get().await()
+                if (!snapshot.exists()) {
+                    println("Document with ID $itemId not found in Firestore.")
+                    return@launch
+                }
+
+                docRef.delete().await()
+                println("Menu item $itemId deleted successfully from Firestore.")
 
                 _menuItems.value = _menuItems.value.filterNot { it.id == itemId }
+
             } catch (e: Exception) {
-                println("Failed to delete menu item: ${e.message}")
+                println("Failed to delete menu item:")
+                e.printStackTrace()
             }
         }
     }
 
+
     override fun onCleared() {
         super.onCleared()
-        menuListener?.remove() // Clean up Firestore listener
+        menuListener?.remove()
     }
 }

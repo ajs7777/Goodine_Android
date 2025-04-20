@@ -58,7 +58,6 @@ fun RestaurantProfileScreen(
     navController: NavHostController,
     businessAuthVM: BusinessAuthViewModel = viewModel(),
 ) {
-
     val restaurant = businessAuthVM.currentRestaurant
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
@@ -66,7 +65,6 @@ fun RestaurantProfileScreen(
     val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     var showMenuScreen by remember { mutableStateOf(false) }
     val menuViewModel: MenuViewModel = viewModel()
-
 
     LaunchedEffect(Unit) {
         businessAuthVM.fetchCurrentRestaurant()
@@ -394,8 +392,6 @@ fun RestaurantScreen(images: List<String>) {
         RestaurantImageCarousel(images = images)
     }
 }
-
-
 
 @Composable
 fun CustomPagerIndicator(

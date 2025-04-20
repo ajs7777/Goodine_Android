@@ -380,7 +380,6 @@ fun RestaurantDetailsScreen(
                 thickness = 1.dp
             )
 
-
             ImagePickerScreen(
                 imageUrls = imageUrls,
                 selectedImages = selectedImages,
@@ -407,7 +406,6 @@ fun RestaurantDetailsScreen(
                 }
 
             )
-
 
             Spacer(modifier = Modifier
                 .height(50.dp)

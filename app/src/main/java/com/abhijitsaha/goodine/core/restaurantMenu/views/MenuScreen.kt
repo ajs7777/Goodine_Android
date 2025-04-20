@@ -272,11 +272,12 @@ fun VegNonVegIcon(modifier: Modifier = Modifier, isVeg: Boolean) {
     ) {
         Box(
             modifier = Modifier
-                .size(8.dp)
+                .size(10.dp)
                 .background(color, CircleShape)
         )
     }
 }
+
 @Composable
 fun BoldPlusIcon(
     onClick: () -> Unit,
