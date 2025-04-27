@@ -37,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.shadow
@@ -50,6 +51,15 @@ import com.abhijitsaha.goodine.core.restaurantMenu.views.MenuScreen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.ui.platform.LocalConfiguration
+import kotlinx.coroutines.delay
+
+@Composable
+fun isTablet(): Boolean {
+    val configuration = LocalConfiguration.current
+    return configuration.screenWidthDp >= 600
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
@@ -72,8 +82,7 @@ fun RestaurantProfileScreen(
     if (businessAuthVM.isLoading) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White),
+                .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(color = Color.Gray)
@@ -99,15 +108,74 @@ fun RestaurantProfileScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val currentTime by produceState(initialValue = Date()) {
+                        while (true) {
+                            value = Date()
+                            delay(60 * 1000) // Update every minute
+                        }
+                    }
+
+
+                    var statusText: String
+                    var backgroundColor: Color
+                    var textColor: Color
+
+                    restaurant?.let {
+                        val openTime = it.openingTime
+                        val closeTime = it.closingTime
+
+                        if (openTime != null && closeTime != null) {
+                            val openSoonThreshold = Date(openTime.time - 30 * 60 * 1000)
+                            val closeSoonThreshold = Date(closeTime.time - 30 * 60 * 1000)
+
+                            val isOpenNow = currentTime.after(openTime) && currentTime.before(closeTime)
+                            val isOpeningSoon = currentTime.after(openSoonThreshold) && currentTime.before(openTime)
+                            val isClosingSoon = currentTime.after(closeSoonThreshold) && currentTime.before(closeTime)
+
+                            when {
+                                isClosingSoon -> {
+                                    statusText = "Closes Soon"
+                                    backgroundColor = Color(0xFFF57F17)
+                                    textColor = Color(0xFFFFFFFF)
+                                }
+                                isOpenNow -> {
+                                    statusText = "Open Now"
+                                    backgroundColor = Color(0xFFCBE97B)
+                                    textColor = Color.Black
+                                }
+                                isOpeningSoon -> {
+                                    statusText = "Opens Soon"
+                                    backgroundColor = Color(0xFFFFF176)
+                                    textColor = Color.Black
+                                }
+                                else -> {
+                                    statusText = "Closed"
+                                    backgroundColor = Color(0xFFD9192C)
+                                    textColor = Color.White
+                                }
+                            }
+
+                        } else {
+                            statusText = "Closed"
+                            backgroundColor = Color.LightGray
+                            textColor = Color.DarkGray
+                        }
+                    } ?: run {
+                        statusText = "Loading..."
+                        backgroundColor = Color.LightGray
+                        textColor = Color.DarkGray
+                    }
                     Text(
-                        text = "Open Now",
-                        color = Color.Black,
+                        text = statusText,
+                        color = textColor,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
                         modifier = Modifier
-                            .background(Color(0xFFCBE97B), RoundedCornerShape(8.dp))
+                            .background(backgroundColor, RoundedCornerShape(8.dp))
                             .padding(horizontal = 8.dp, vertical = 5.dp)
                     )
+
+
 
                     Button(
                         onClick = {
@@ -116,8 +184,8 @@ fun RestaurantProfileScreen(
                             }
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFE0E0E0),
-                            contentColor = Color.Black
+                            containerColor = Color(0xFF757575).copy(alpha = 0.3f),
+                            contentColor = MaterialTheme.colorScheme.primary
                         ),
                         shape = RoundedCornerShape(8.dp),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
@@ -142,6 +210,7 @@ fun RestaurantProfileScreen(
                 Text(
                     text = restaurant?.name ?: "Loading...",
                     fontSize = 35.sp,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold)
 
                 Spacer(modifier = Modifier.height(5.dp))
@@ -155,24 +224,26 @@ fun RestaurantProfileScreen(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Text(text = restaurant?.type ?: "Cuisine", fontSize = 18.sp, color = Color.Black)
-                        Text(text = "${restaurant?.city ?: ""} | 2 Km", fontSize = 18.sp, color = Color.Gray)
+                        Text(text = restaurant?.type ?: "Cuisine", fontSize = 18.sp, color = MaterialTheme.colorScheme.primary)
+                        Text(text = "${restaurant?.city ?: ""} ", fontSize = 18.sp, color = Color.Gray)
                     }
 
                     Column(
                         horizontalAlignment = Alignment.End,
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
+
                         Text(
-                            text = "⭐ 4.5(3k Ratings)",
+                            text = "⭐️No Ratings",
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium
+                            color = MaterialTheme.colorScheme.primary
                         )
+
                         if (!restaurant?.averageCost.isNullOrEmpty()) {
                             Text(
                                 text = "${restaurant.currencySymbol}${restaurant.averageCost} for two",
                                 fontSize = 18.sp,
-                                color = Color.Black
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
 
@@ -201,7 +272,7 @@ fun RestaurantProfileScreen(
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = "Location",
-                        tint = Color.Black,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .padding(end = 4.dp)
                             .size(24.dp)
@@ -209,7 +280,7 @@ fun RestaurantProfileScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = restaurant?.address ?: "Address not available",
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -222,7 +293,7 @@ fun RestaurantProfileScreen(
                     Icon(
                         imageVector = Icons.Default.AccessTime,
                         contentDescription = "Timing",
-                        tint = Color.Black,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .padding(2.dp)
                             .size(24.dp)
@@ -230,8 +301,7 @@ fun RestaurantProfileScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "${timeFormat.format(restaurant?.openingTime ?: Date())} – ${timeFormat.format(restaurant?.closingTime ?: Date())}",
-
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -275,7 +345,7 @@ fun RestaurantProfileScreen(
                 ) {
                     Text(
                         text = "Log Out",
-                        color = Color.Red,
+                        color = Color(0xFFE72020),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -283,11 +353,14 @@ fun RestaurantProfileScreen(
             }
 
         }
-        FloatingMenuButton(
-            onClick = {
-                showMenuScreen = true
-            }
-        )
+        if (!isTablet()) {
+            FloatingMenuButton(
+                onClick = {
+                    showMenuScreen = true
+                }
+            )
+        }
+
 
         if (showSheet) {
             ModalBottomSheet(
@@ -295,10 +368,11 @@ fun RestaurantProfileScreen(
                     showSheet = false
                 },
                 sheetState = sheetState,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.widthIn(max = 650.dp).fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
+                        .widthIn(max = 650.dp)
                         .fillMaxWidth()
                         .fillMaxHeight(0.9f)
                 ) {
@@ -347,9 +421,10 @@ fun FeatureTag(text: String) {
     Text(
         text = text,
         fontSize = 17.sp,
+        color = MaterialTheme.colorScheme.primary,
         fontWeight = FontWeight.Medium,
         modifier = Modifier
-            .background(Color(0xFFE5E5EA), RoundedCornerShape(9.dp))
+            .background(Color(0xFF757575).copy(alpha = 0.3f), RoundedCornerShape(9.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp)
     )
 }
@@ -362,7 +437,7 @@ fun RestaurantImageCarousel(images: List<String>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp)
+            .height(230.dp)
     ) {
         HorizontalPager(
             state = pagerState,
@@ -436,8 +511,8 @@ fun FloatingMenuButton(
             onClick = onClick,
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Black,
-                contentColor = Color.White
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.secondary
             ),
             modifier = Modifier
                 .shadow(
@@ -458,7 +533,3 @@ fun FloatingMenuButton(
         }
     }
 }
-
-
-
-

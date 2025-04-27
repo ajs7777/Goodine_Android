@@ -31,6 +31,8 @@ fun MainLoginPage(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Spacer(modifier = Modifier.weight(1f))
         // App Icon
         Image(
             painter = painterResource(id = R.drawable.login_icon),
@@ -48,7 +50,8 @@ fun MainLoginPage(
             Text(
                 text = "Get started with App",
                 fontSize = 28.sp,
-                fontWeight = FontWeight.ExtraBold
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = "Login or signup to use App",
@@ -70,7 +73,7 @@ fun MainLoginPage(
                 modifier = Modifier
                     .padding(vertical = 8.dp)
                     .widthIn(500.dp)
-                    .height(65.dp),
+                    .height(60.dp),
                 backgroundColor = MaterialTheme.colorScheme.primary,
                 cornerRadius = 12.dp
             ) {
@@ -92,13 +95,11 @@ fun MainLoginPage(
             }
         }
 
+        Spacer(modifier = Modifier.weight(4f))
 
         // Footer
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom
         ) {
             Image(
                 painter = painterResource(id = R.drawable.goodine_text),
@@ -114,23 +115,23 @@ fun MainLoginPage(
             ) {
                 Text(
                     text = "By clicking, I accept the",
-                    fontSize = 12.sp,
+                    fontSize = 10.sp,
                     color = Color.Gray
                 )
                 Text(
                     text = " Terms & Conditions ",
-                    fontSize = 12.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = " & ",
-                    fontSize = 12.sp,
+                    fontSize = 10.sp,
                     color = Color.Gray
                 )
                 Text(
                     text = " Privacy Policy",
-                    fontSize = 12.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )

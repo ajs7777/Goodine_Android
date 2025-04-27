@@ -71,7 +71,7 @@ fun BusinessLoginView(
                     BoldArrowBackIcon(onClick = onBackClick)
                 }
 
-                Spacer(modifier = Modifier.weight(0.5f))
+                Spacer(modifier = Modifier.weight(1f))
 
                 Image(
                     painter = painterResource(id = R.drawable.businessicon),
@@ -141,17 +141,23 @@ fun BusinessLoginView(
                                     showRestaurantNavigationBar = true
                                 },
                                 onFailure = { error ->
-                                    passwordError = error // Show the error under password field, or you can use Snackbar
+                                    passwordError = error
                                 }
                             )
                         }
-
                     },
-                    modifier = Modifier.widthIn(500.dp).height(65.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier
+                        .widthIn(500.dp)
+                        .height(60.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.secondary
+                    )
                 ) {
                     Text(text = "Log In", fontSize = 18.sp)
                 }
+
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -162,25 +168,25 @@ fun BusinessLoginView(
                     Text(
                         "Create Business Account",
                         fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.clickable { showSignupScreen = true }
                     )
                     Text(
                         "Forgot password?",
                         fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.clickable { onForgotPasswordClick() }
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(6f))
 
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
                         .padding(bottom = 20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Bottom
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.goodine_text),
@@ -194,23 +200,23 @@ fun BusinessLoginView(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "By clicking, I accept the",
-                            fontSize = 12.sp,
+                            fontSize = 10.sp,
                             color = Color.Gray
                         )
                         Text(
                             text = " Terms & Conditions ",
-                            fontSize = 12.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = " & ",
-                            fontSize = 12.sp,
+                            fontSize = 10.sp,
                             color = Color.Gray
                         )
                         Text(
                             text = " Privacy Policy",
-                            fontSize = 12.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )

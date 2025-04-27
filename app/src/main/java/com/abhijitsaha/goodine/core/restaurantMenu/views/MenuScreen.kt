@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,7 +55,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.abhijitsaha.goodine.R
 import com.abhijitsaha.goodine.core.authentication.view.BoldArrowBackIcon
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,7 +140,7 @@ fun MenuScreen(
           },
             sheetState = sheetState,
             dragHandle = null,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth()
         ) {
             Box(
                 modifier = Modifier

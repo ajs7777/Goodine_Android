@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -55,6 +56,7 @@ import kotlin.collections.forEach
 fun HistoryDetailScreen(
     history: HistoryRecord,
     onBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val orderVM: OrdersViewModel = viewModel()
     val orders by orderVM.orders.collectAsState()
@@ -154,12 +156,12 @@ fun HistoryDetailScreen(
                     .fillMaxWidth()
                     .height(80.dp)
                     .padding(bottom = 16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Print, contentDescription = "Print")
+                Icon(Icons.Default.Print, contentDescription = "Print", tint = MaterialTheme.colorScheme.secondary)
                 Spacer(Modifier.width(8.dp))
-                Text("Print Slip")
+                Text("Print Slip", color = MaterialTheme.colorScheme.secondary)
             }
         }
     }

@@ -65,6 +65,8 @@ fun BusinessSignupScreen(
                 BoldCloseIcon(onClick = { onClose() })
             }
 
+            Spacer(modifier = Modifier.weight(1f))
+
             Column (
                 horizontalAlignment = Alignment.Start
             ){
@@ -76,6 +78,7 @@ fun BusinessSignupScreen(
                 Text(
                     text = "Get started with Goodine business",
                     fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
@@ -279,11 +282,11 @@ fun BusinessSignupScreen(
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
+
+            Spacer(modifier = Modifier.weight(1f))
+
             Column(
-                modifier = Modifier
-                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.goodine_text),
@@ -293,29 +296,26 @@ fun BusinessSignupScreen(
                         .alpha(0.4f)
                 )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 30.dp)
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "By clicking, I accept the",
-                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 10.sp,
                         color = Color.Gray
                     )
                     Text(
                         text = " Terms & Conditions ",
-                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = " & ",
-                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 10.sp,
                         color = Color.Gray
                     )
                     Text(
                         text = " Privacy Policy",
-                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )

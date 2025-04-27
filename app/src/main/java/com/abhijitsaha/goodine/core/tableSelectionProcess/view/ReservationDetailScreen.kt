@@ -50,6 +50,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import android.graphics.Paint
 import android.graphics.Typeface
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.LocalContext
 
 
@@ -57,6 +58,7 @@ import androidx.compose.ui.platform.LocalContext
 fun ReservationDetailScreen(
     reservation: Reservation,
     onBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val orderVM: OrdersViewModel = viewModel()
     val orders by orderVM.orders.collectAsState()
@@ -162,12 +164,12 @@ fun ReservationDetailScreen(
                     .fillMaxWidth()
                     .height(80.dp)
                     .padding(bottom = 16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Print, contentDescription = "Print")
+                Icon(Icons.Default.Print, contentDescription = "Print", tint = MaterialTheme.colorScheme.secondary)
                 Spacer(Modifier.width(8.dp))
-                Text("Print Slip")
+                Text("Print Slip", color =  MaterialTheme.colorScheme.secondary)
             }
         }
     }

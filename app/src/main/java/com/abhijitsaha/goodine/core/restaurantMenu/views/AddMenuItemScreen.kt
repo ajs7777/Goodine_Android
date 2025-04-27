@@ -160,7 +160,8 @@ fun AddMenuItemScreen(
         }
 
         Row (
-            modifier = Modifier.padding(top = 12.dp)
+            modifier = Modifier.padding(top = 12.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
         ){
             Column {
                 Text("Upload Image", fontWeight = FontWeight.Bold)
@@ -197,11 +198,10 @@ fun AddMenuItemScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.width(180.dp))
+            Spacer(modifier = Modifier.weight(1f))
 
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {

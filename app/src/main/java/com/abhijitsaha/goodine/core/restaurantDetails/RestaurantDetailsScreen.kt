@@ -131,291 +131,330 @@ fun RestaurantDetailsScreen(
 
     Scaffold(
         bottomBar = {
-            SaveAndContinueButton(
-                onClick = {
-                    coroutineScope.launch {
-                        val uploadedImageUrls = mutableListOf<String>()
-
-                        selectedImages.forEach { uri ->
-                            val url = businessAuthViewModel.uploadImageToFirebase(uri)
-                            uploadedImageUrls.add(url)
-                        }
-
-                        val updatedRestaurant = Restaurant(
-                            id = initialRestaurant.id,
-                            ownerName = initialRestaurant.ownerName,
-                            name = name,
-                            type = type,
-                            city = city,
-                            state = state,
-                            address = address,
-                            zipcode = zipcode,
-                            averageCost = costForTwo,
-                            openingTime = openingTime,
-                            closingTime = closingTime,
-                            imageUrls = imageUrls + uploadedImageUrls, // Combine old + new
-                            currency = currency,
-                            currencySymbol = currencySymbol,
-                        )
-
-                        onSave(updatedRestaurant)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(85.dp)
-            )
-        }
-    ) { paddingValues ->
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-    ){
-        Text(text = "Hotel Details", fontSize = 35.sp, fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(bottom = 20.dp)
-            )
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-        OutlinedTextField(
-            value = name,
-            onValueChange = {
-                name = it
-            },
-            placeholder = { Text("Business Name", modifier = Modifier.alpha(0.4f)) },
-            modifier = Modifier.widthIn(500.dp),
-            shape = RoundedCornerShape(10.dp),
-            colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
-                focusedBorderColor = Color.Gray,
-                unfocusedBorderColor = Color.Gray,
-                cursorColor = MaterialTheme.colorScheme.primary,
-                focusedTextColor = MaterialTheme.colorScheme.primary,
-                unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                focusedPlaceholderColor = Color.Gray,
-                unfocusedPlaceholderColor = Color.Gray
-            ),
-            singleLine = true
-        )
-
-        OutlinedTextField(
-            value = type,
-            onValueChange = {
-                type = it
-            },
-            placeholder = { Text("Indian, Chinese", modifier = Modifier.alpha(0.4f)) },
-            modifier = Modifier.widthIn(500.dp),
-            shape = RoundedCornerShape(10.dp),
-            colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
-                focusedBorderColor = Color.Gray,
-                unfocusedBorderColor = Color.Gray,
-                cursorColor = MaterialTheme.colorScheme.primary,
-                focusedTextColor = MaterialTheme.colorScheme.primary,
-                unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                focusedPlaceholderColor = Color.Gray,
-                unfocusedPlaceholderColor = Color.Gray
-            ),
-            singleLine = true
-        )
-            OutlinedTextField(
-                value = address,
-                onValueChange = {
-                    address = it
-                },
-                placeholder = { Text("Address", modifier = Modifier.alpha(0.4f)) },
-                modifier = Modifier.widthIn(500.dp),
-                shape = RoundedCornerShape(10.dp),
-                colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    cursorColor = MaterialTheme.colorScheme.primary,
-                    focusedTextColor = MaterialTheme.colorScheme.primary,
-                    unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                    focusedPlaceholderColor = Color.Gray,
-                    unfocusedPlaceholderColor = Color.Gray
-                ),
-                singleLine = true
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-
-                OutlinedTextField(
-                    value = state,
-                    onValueChange = {
-                        state = it
-                    },
-                    placeholder = { Text("State", modifier = Modifier.alpha(0.4f)) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                        unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                        focusedPlaceholderColor = Color.Gray,
-                        unfocusedPlaceholderColor = Color.Gray
-                    ),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = city,
-                    onValueChange = {
-                        city = it
-                    },
-                    placeholder = { Text("City", modifier = Modifier.alpha(0.4f)) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                        unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                        focusedPlaceholderColor = Color.Gray,
-                        unfocusedPlaceholderColor = Color.Gray
-                    ),
-                    singleLine = true
-                )
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-
-                OutlinedTextField(
-                    value = zipcode,
-                    onValueChange = {
-                        zipcode = it
-                    },
-                    placeholder = { Text("Zipcode", modifier = Modifier.alpha(0.4f)) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                        unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                        focusedPlaceholderColor = Color.Gray,
-                        unfocusedPlaceholderColor = Color.Gray
-                    ),
-                    singleLine = true
-                )
-                UseMyLocationButton(onClick = {})
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = "Average Cost For two",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = costForTwo,
-                    onValueChange = {
-                        costForTwo = it
-                    },
-                    placeholder = { Text("", modifier = Modifier.alpha(0.4f)) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        focusedTextColor = MaterialTheme.colorScheme.primary,
-                        unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                        focusedPlaceholderColor = Color.Gray,
-                        unfocusedPlaceholderColor = Color.Gray
-                    ),
-                    singleLine = true
-                )
-
-                CurrencyDropdown(
-                    selectedCurrency = currency,
-                    onCurrencySelected = {
-                        currency = it.substringAfter(" ") // Extract "INR"
-                        currencySymbol = it.substringBefore(" ") // Extract "₹"
-                    }
-                )
-
-            }
-
-            Spacer(modifier = Modifier.height(1.dp))
-            Text(
-                text = "Opening Hours:",
-                fontSize = 25.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(225.dp)
-                ) {
-                    Text("From", color = Color(0xFFFF9800), fontWeight = FontWeight.Medium, fontSize = 20.sp)
-                    TimeBox(time = "${timeFormat.format(openingTime)}" , onClick = { fromTimePicker.show() })
-                }
+                contentAlignment = Alignment.Center
+            ){
+                SaveAndContinueButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            val uploadedImageUrls = mutableListOf<String>()
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(250.dp)
-                ) {
-
-                    Text("To", color = Color(0xFFFF9800), fontWeight = FontWeight.Medium, fontSize = 20.sp)
-                    TimeBox(time = "${timeFormat.format(closingTime)}", onClick = { toTimePicker.show() })
-                }
-            }
-
-            HorizontalDivider(
-                color = Color.LightGray,
-                thickness = 1.dp
-            )
-
-            ImagePickerScreen(
-                imageUrls = imageUrls,
-                selectedImages = selectedImages,
-                isUploading = businessAuthViewModel.isUploadingImage,
-                onAddImageClick = {
-                    if (!businessAuthViewModel.isUploadingImage) {
-                        imagePickerLauncher.launch("image/*")
-                    }
-                },
-                onRemoveImage = { uri ->
-                    selectedImages.remove(uri)
-                },
-                onRemovalImage = { url ->
-                    coroutineScope.launch {
-                        try {
-                            val isDeleted = businessAuthViewModel.deleteImageFromFirebase(url)
-                            if (isDeleted) {
-                                imageUrls.remove(url)
+                            selectedImages.forEach { uri ->
+                                val url = businessAuthViewModel.uploadImageToFirebase(uri)
+                                uploadedImageUrls.add(url)
                             }
-                        } catch (e: Exception) {
-                            Log.e("DeleteImage", "Failed to delete image: ${e.message}")
+
+                            val updatedRestaurant = Restaurant(
+                                id = initialRestaurant.id,
+                                ownerName = initialRestaurant.ownerName,
+                                name = name,
+                                type = type,
+                                city = city,
+                                state = state,
+                                address = address,
+                                zipcode = zipcode,
+                                averageCost = costForTwo,
+                                openingTime = openingTime,
+                                closingTime = closingTime,
+                                imageUrls = imageUrls + uploadedImageUrls, // Combine old + new
+                                currency = currency,
+                                currencySymbol = currencySymbol,
+                            )
+
+                            onSave(updatedRestaurant)
+                        }
+                    },
+                    modifier = Modifier
+                        .widthIn(max = 620.dp)
+                        .fillMaxWidth()
+                        .height(80.dp)
+                )
+            }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding( bottom = paddingValues.calculateBottomPadding()),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(16.dp)
+                    .widthIn(max = 600.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = "Hotel Details", fontSize = 35.sp, fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier.padding(bottom = 20.dp)
+                )
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = {
+                            name = it
+                        },
+                        placeholder = { Text("Business Name", modifier = Modifier.alpha(0.4f)) },
+                        modifier = Modifier.widthIn(600.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
+                            focusedBorderColor = Color.Gray,
+                            unfocusedBorderColor = Color.Gray,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            focusedTextColor = MaterialTheme.colorScheme.primary,
+                            unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                            focusedPlaceholderColor = Color.Gray,
+                            unfocusedPlaceholderColor = Color.Gray
+                        ),
+                        singleLine = true
+                    )
+
+                    OutlinedTextField(
+                        value = type,
+                        onValueChange = {
+                            type = it
+                        },
+                        placeholder = { Text("Indian, Chinese", modifier = Modifier.alpha(0.4f)) },
+                        modifier = Modifier.widthIn(600.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
+                            focusedBorderColor = Color.Gray,
+                            unfocusedBorderColor = Color.Gray,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            focusedTextColor = MaterialTheme.colorScheme.primary,
+                            unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                            focusedPlaceholderColor = Color.Gray,
+                            unfocusedPlaceholderColor = Color.Gray
+                        ),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = address,
+                        onValueChange = {
+                            address = it
+                        },
+                        placeholder = { Text("Address", modifier = Modifier.alpha(0.4f)) },
+                        modifier = Modifier.widthIn(600.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
+                            focusedBorderColor = Color.Gray,
+                            unfocusedBorderColor = Color.Gray,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            focusedTextColor = MaterialTheme.colorScheme.primary,
+                            unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                            focusedPlaceholderColor = Color.Gray,
+                            unfocusedPlaceholderColor = Color.Gray
+                        ),
+                        singleLine = true
+                    )
+                    Row(
+                        modifier = Modifier
+                            .widthIn(max = 600.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+
+                        OutlinedTextField(
+                            value = state,
+                            onValueChange = {
+                                state = it
+                            },
+                            placeholder = { Text("State", modifier = Modifier.alpha(0.4f)) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
+                                focusedBorderColor = Color.Gray,
+                                unfocusedBorderColor = Color.Gray,
+                                cursorColor = MaterialTheme.colorScheme.primary,
+                                focusedTextColor = MaterialTheme.colorScheme.primary,
+                                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                                focusedPlaceholderColor = Color.Gray,
+                                unfocusedPlaceholderColor = Color.Gray
+                            ),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = city,
+                            onValueChange = {
+                                city = it
+                            },
+                            placeholder = { Text("City", modifier = Modifier.alpha(0.4f)) },
+                            modifier = Modifier.weight(1f).fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
+                                focusedBorderColor = Color.Gray,
+                                unfocusedBorderColor = Color.Gray,
+                                cursorColor = MaterialTheme.colorScheme.primary,
+                                focusedTextColor = MaterialTheme.colorScheme.primary,
+                                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                                focusedPlaceholderColor = Color.Gray,
+                                unfocusedPlaceholderColor = Color.Gray
+                            ),
+                            singleLine = true
+                        )
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+
+                        OutlinedTextField(
+                            value = zipcode,
+                            onValueChange = {
+                                zipcode = it
+                            },
+                            placeholder = { Text("Zipcode", modifier = Modifier.alpha(0.4f)) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
+                                focusedBorderColor = Color.Gray,
+                                unfocusedBorderColor = Color.Gray,
+                                cursorColor = MaterialTheme.colorScheme.primary,
+                                focusedTextColor = MaterialTheme.colorScheme.primary,
+                                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                                focusedPlaceholderColor = Color.Gray,
+                                unfocusedPlaceholderColor = Color.Gray
+                            ),
+                            singleLine = true
+                        )
+                        UseMyLocationButton(onClick = {})
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = "Average Cost For two",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.weight(1f)
+                        )
+                        OutlinedTextField(
+                            value = costForTwo,
+                            onValueChange = {
+                                costForTwo = it
+                            },
+                            placeholder = { Text("", modifier = Modifier.alpha(0.4f)) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = OutlinedTextFieldDefaults.colors( // ✅ Fixed usage
+                                focusedBorderColor = Color.Gray,
+                                unfocusedBorderColor = Color.Gray,
+                                cursorColor = MaterialTheme.colorScheme.primary,
+                                focusedTextColor = MaterialTheme.colorScheme.primary,
+                                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                                focusedPlaceholderColor = Color.Gray,
+                                unfocusedPlaceholderColor = Color.Gray
+                            ),
+                            singleLine = true
+                        )
+
+                        CurrencyDropdown(
+                            selectedCurrency = currency,
+                            onCurrencySelected = {
+                                currency = it.substringAfter(" ") // Extract "INR"
+                                currencySymbol = it.substringBefore(" ") // Extract "₹"
+                            },
+                        )
+
+                    }
+
+                    Spacer(modifier = Modifier.height(1.dp))
+                    Text(
+                        text = "Opening Hours:",
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                "From",
+                                color = Color(0xFFFF9800),
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 20.sp
+                            )
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            TimeBox(
+                                time = "${timeFormat.format(openingTime)}",
+                                onClick = { fromTimePicker.show() })
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+
+                            Text(
+                                "To",
+                                color = Color(0xFFFF9800),
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 20.sp
+                            )
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            TimeBox(
+                                time = "${timeFormat.format(closingTime)}",
+                                onClick = { toTimePicker.show() })
                         }
                     }
+
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp
+                    )
+
+                    ImagePickerScreen(
+                        imageUrls = imageUrls,
+                        selectedImages = selectedImages,
+                        isUploading = businessAuthViewModel.isUploadingImage,
+                        onAddImageClick = {
+                            if (!businessAuthViewModel.isUploadingImage) {
+                                imagePickerLauncher.launch("image/*")
+                            }
+                        },
+                        onRemoveImage = { uri ->
+                            selectedImages.remove(uri)
+                        },
+                        onRemovalImage = { url ->
+                            coroutineScope.launch {
+                                try {
+                                    val isDeleted =
+                                        businessAuthViewModel.deleteImageFromFirebase(url)
+                                    if (isDeleted) {
+                                        imageUrls.remove(url)
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("DeleteImage", "Failed to delete image: ${e.message}")
+                                }
+                            }
+                        }
+
+                    )
+
+                    Spacer(
+                        modifier = Modifier
+                            .height(50.dp)
+                            .padding(paddingValues)
+                    )
                 }
-
-            )
-
-            Spacer(modifier = Modifier
-                .height(50.dp)
-                .padding(paddingValues)
-            )
-       }
-    }
+            }
+        }
   }
 }
-
 
 @Composable
 fun UseMyLocationButton(onClick: () -> Unit) {
@@ -468,8 +507,8 @@ fun CurrencyDropdown(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
             ),
             modifier = Modifier.menuAnchor(
                 MenuAnchorType.PrimaryEditable
@@ -496,7 +535,7 @@ fun CurrencyDropdown(
 @Composable
 fun TimeBox(time: String, onClick: () -> Unit) {
     Surface(
-        color = Color(0xFFF2F2F2),
+        color = Color(0xFF757575).copy(alpha = 0.2f),
         shape = RoundedCornerShape(10.dp),
         modifier = Modifier
             .width(100.dp)
@@ -504,7 +543,7 @@ fun TimeBox(time: String, onClick: () -> Unit) {
             .clickable { onClick() }
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Text(text = time, color = Color.Black, fontWeight = FontWeight.Medium, fontSize = 17.sp)
+            Text(text = time, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium, fontSize = 17.sp)
         }
     }
 }
@@ -519,20 +558,20 @@ fun SaveAndContinueButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 12.dp),
+            .padding(horizontal = 17.dp).padding(bottom = 15.dp),
         enabled = isEnabled,
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = Color.White,
+            contentColor = MaterialTheme.colorScheme.secondary,
             disabledContainerColor = Color.Gray,
             disabledContentColor = Color.LightGray
         ),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
     ) {
         Text(
-            text = "Save and Continue",
-            style = MaterialTheme.typography.labelLarge,
+            text = "Save & Continue",
+            fontSize = 17.sp,
             fontWeight = FontWeight.Bold
         )
     }
@@ -560,7 +599,7 @@ fun ImagePickerScreen(
             Box(
                 modifier = Modifier
                     .size(100.dp)
-                    .background(Color.LightGray, RoundedCornerShape(8.dp))
+                    .background(Color(0xFF757575).copy(alpha = 0.3f), RoundedCornerShape(10.dp))
                     .clickable(enabled = !isUploading) { onAddImageClick() },
                 contentAlignment = Alignment.Center
             ) {
@@ -573,7 +612,7 @@ fun ImagePickerScreen(
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add Images",
-                        tint = Color.DarkGray,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -585,7 +624,7 @@ fun ImagePickerScreen(
                 Box(
                     modifier = Modifier
                         .size(100.dp)
-                        .background(Color.LightGray, RoundedCornerShape(8.dp)),
+                        .background(Color.LightGray, RoundedCornerShape(10.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
@@ -634,7 +673,7 @@ fun ImagePickerScreen(
                 Box(
                     modifier = Modifier
                         .size(100.dp)
-                        .background(Color.LightGray, RoundedCornerShape(8.dp)),
+                        .background(Color.LightGray, RoundedCornerShape(10.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
@@ -677,6 +716,7 @@ fun ImagePickerScreen(
         }
     }
 }
+
 @Composable
 fun CachedAsyncImage(
     modifier: Modifier = Modifier,
@@ -700,7 +740,6 @@ fun CachedAsyncImage(
         contentScale = ContentScale.Crop
     )
 }
-
 
 fun createCustomImageLoader(context: Context): ImageLoader {
     return ImageLoader.Builder(context)

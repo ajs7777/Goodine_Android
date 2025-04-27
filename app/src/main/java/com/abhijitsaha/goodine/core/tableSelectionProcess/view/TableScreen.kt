@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
@@ -101,8 +102,11 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+
+            val buttonMaxWidth = 600.dp
+            val buttonWidth = if (maxWidth < buttonMaxWidth) maxWidth else buttonMaxWidth
             val maxWidth = this.maxWidth
-            val maxHeight = this.maxHeight * 0.74f
+            val maxHeight = this.maxHeight * 0.71f
             val verticalSpacing = maxHeight * 0.03f
             val horizontalSpacing = maxWidth * 0.03f
 
@@ -128,7 +132,7 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
                         text = "Table Selection",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -144,9 +148,10 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
                     ) {
 
                         Icon(
-                            painter = painterResource(id = R.drawable.column),
+                            painter = painterResource(id = R.drawable.above),
                             contentDescription = "Menu Icon",
-                            modifier = Modifier.size(25.dp)
+                            modifier = Modifier.size(25.dp),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                         )
 
                         Spacer(modifier = Modifier.width(10.dp))
@@ -161,9 +166,10 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
                         Spacer(modifier = Modifier.width(12.dp))
 
                         Icon(
-                            painter = painterResource(id = R.drawable.above),
+                            painter = painterResource(id = R.drawable.column),
                             contentDescription = "Menu Icon",
-                            modifier = Modifier.size(25.dp)
+                            modifier = Modifier.size(25.dp),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                         )
 
                         Spacer(modifier = Modifier.width(10.dp))
@@ -174,6 +180,8 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
                             minValue = 1,
                             maxValue = 10
                         )
+
+                        Spacer(modifier = Modifier.weight(1f))
 
                         Button(
                             onClick = {
@@ -186,7 +194,7 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
                             ),
                             elevation = null
                         ) {
-                            Text("Done", fontSize = 18.sp, color = Color.Black)
+                            Text("Done", fontSize = 18.sp, color = MaterialTheme.colorScheme.primary)
                         }
 
                     }
@@ -206,6 +214,7 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
                             )
                             Text(
                                 text = dateParts.getOrNull(1) ?: "",
+                                color = MaterialTheme.colorScheme.primary,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.ExtraBold
                             )
@@ -215,20 +224,20 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
                             Row(
                                 modifier = Modifier
                                     .clickable { isEditing = true }
-                                    .background(Color.Black, shape = RoundedCornerShape(12.dp))
+                                    .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(12.dp))
                                     .padding(horizontal = 12.dp, vertical = 8.dp), // Adjust padding for size
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
                                     contentDescription = "Edit Layout",
-                                    tint = Color.White,
+                                    tint = MaterialTheme.colorScheme.secondary,
                                     modifier = Modifier.size(20.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Add Table",
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.secondary,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 17.sp
                                 )
@@ -243,14 +252,13 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
 
                 HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
 
-                Spacer(modifier = Modifier.height(15.dp))
+                Spacer(modifier = Modifier.weight(1f))
 
                 // ✅ Table Grid View
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(maxHeight)
-                        .padding(bottom = 10.dp),
+                        .height(maxHeight),
                     contentAlignment = Alignment.TopCenter
                 ) {
                     Column(
@@ -261,7 +269,7 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
                         repeat(rows) { rowIndex ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(horizontalSpacing, Alignment.CenterHorizontally)
+                                horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
                                 repeat(columns) {
                                     if (tableNumber <= tableCount) {
@@ -291,7 +299,7 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
 
 
                 // ✅ Done Button (could be used to save selection)
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.weight(1f))
                 // In TableScreen composable, for the Done button
                 Button(
                     onClick = {
@@ -308,12 +316,13 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
                         )
                     },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(65.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                        .widthIn(max = 700.dp).fillMaxWidth()
+                        .height(65.dp)
+                    .align(Alignment.CenterHorizontally),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(15.dp)
                 ) {
-                    Text("Done", color = Color.White, fontSize = 18.sp)
+                    Text("Done", color = MaterialTheme.colorScheme.secondary, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                 }
 
 
@@ -344,7 +353,6 @@ fun TableScreen(viewModel: TableViewModel = viewModel()) {
 
         }
     }
-
 }
 
 @Composable
@@ -360,8 +368,8 @@ fun TableItem(
     Box(
         modifier = Modifier
             .size(tableSize)
-            .background(Color(0xFFF5F5F5), shape = RoundedCornerShape(18.dp)),
-        contentAlignment = Alignment.Center
+            .background(Color(0xFF8D8D8D).copy(alpha = 0.1f), shape = RoundedCornerShape(18.dp)),
+                contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -415,8 +423,8 @@ fun SeatItem(
 ) {
     val backgroundColor = when {
         isReserved -> Color(0xFFFBBB63) // Icon background color
-        isActive -> Color(0xFF36D73B)
-        else -> Color.LightGray
+        isActive -> Color(0xFF30D158)
+        else -> Color(0xFF8D8D8D).copy(alpha = 0.3f)
     }
 
     Box(
@@ -447,7 +455,7 @@ fun Stepper(
 ) {
     Row(
         modifier = modifier
-            .background(Color(0xFFF2F2F2), shape = RoundedCornerShape(12.dp))
+            .background(Color(0xFF757575).copy(alpha = 0.2f), shape = RoundedCornerShape(12.dp))
             .padding(horizontal = 6.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -458,7 +466,7 @@ fun Stepper(
             Icon(
                 imageVector = Icons.Default.Remove,
                 contentDescription = "Decrease",
-                tint = Color.Black
+                tint = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -469,7 +477,7 @@ fun Stepper(
             modifier = Modifier.width(22.dp),
             textAlign = TextAlign.Center,
             fontSize = 15.sp,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
         )
 
@@ -482,7 +490,7 @@ fun Stepper(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Increase",
-                tint = Color.Black
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }

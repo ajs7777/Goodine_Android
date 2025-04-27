@@ -45,6 +45,11 @@ import com.abhijitsaha.goodine.models.MenuItem
 fun OrdersScreen(
     viewModel: TableViewModel = viewModel()
 ) {
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchReservations()
+    }
+
     val active by viewModel.activeReservations.collectAsState()
     val history by viewModel.historyReservations.collectAsState()
 
@@ -62,6 +67,11 @@ fun OrdersScreen(
     var showHistoryDetailScreen by remember { mutableStateOf(false) }
     var reservationForDetails by remember { mutableStateOf<Reservation?>(null) }
     var historyForDetails by remember { mutableStateOf<HistoryRecord?>(null) }
+
+    var showPayBillDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var reservationToActOn by remember { mutableStateOf<Reservation?>(null) }
+
 
     val orderVM: OrdersViewModel = viewModel()
 
@@ -97,10 +107,12 @@ fun OrdersScreen(
                     ReservationCard(
                         reservation = reservation,
                         onPayBill = {
-                            viewModel.markReservationAsPaid(reservation.id)
+                            reservationToActOn = reservation
+                            showPayBillDialog = true
                         },
                         onDeleteReservation = {
-                            viewModel.deleteReservation(reservation.id)
+                            reservationToActOn = reservation
+                            showDeleteDialog = true
                         },
                         onAddFoodClick = {
                             selectedReservation = reservation
@@ -188,7 +200,56 @@ fun OrdersScreen(
                 }
             }
         }
+        if (showPayBillDialog && reservationToActOn != null) {
+            AlertDialog(
+                onDismissRequest = { showPayBillDialog = false },
+                title = { Text("Confirm Payment") },
+                text = { Text("Do you want to complete the payment?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.markReservationAsPaid(reservationToActOn!!.id)
+                        showPayBillDialog = false
+                    }) {
+                        Text("Done")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showPayBillDialog = false
+                    }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        if (showDeleteDialog && reservationToActOn != null) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("Cancel Reservation") },
+                text = { Text("Are you sure you want to delete this reservation?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.deleteReservation(reservationToActOn!!.id)
+                        showDeleteDialog = false
+                    }) {
+                        Text("Delete", color = Color.Red)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showDeleteDialog = false
+                    }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+
     }
+
+
 }
 
 
@@ -255,8 +316,7 @@ fun ReservationCard(
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clickable { onCardClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F7))
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF757575).copy(alpha = 0.1f))
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp).padding(top = 8.dp)
@@ -265,11 +325,11 @@ fun ReservationCard(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Booking Date: ${dateFormat.format(reservation.timestamp)}", fontWeight = FontWeight.Normal, fontSize = 14.sp, color = Color.Gray)
+                Text("Booking Date: ${dateFormat.format(reservation.timestamp)}", fontWeight = FontWeight.Normal, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Text("${timeFormat.format(reservation.timestamp)}", fontWeight = FontWeight.Normal, fontSize = 13.sp, color = Color.Gray)
+                Text("${timeFormat.format(reservation.timestamp)}", fontWeight = FontWeight.Normal, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete",
@@ -320,11 +380,11 @@ fun ReservationCard(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color.Black)
+                            .background(MaterialTheme.colorScheme.primary)
                             .clickable { onAddFoodClick() }
                             .padding(horizontal = 12.dp, vertical = 8.dp)
                     ) {
-                        Text("Add Food", color = Color.White, fontWeight = FontWeight.Medium)
+                        Text("Add Food", color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -347,8 +407,7 @@ fun HistoryCard(
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clickable { onCardClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F7))
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF757575).copy(alpha = 0.1f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
@@ -381,10 +440,10 @@ fun HistoryCard(
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = "Paid",
-                    tint = Color(0xFF36D73B)
+                    tint = Color(0xFF30D158)
                 )
                 Spacer(modifier = Modifier.width(7.dp))
-                Text("Paid", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("Paid", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -395,7 +454,8 @@ fun HistoryCard(
                 history.billingTime?.let { billingTime ->
                     Text(
                         "Billing Time: ${dateFormat.format(billingTime)} at ${timeFormat.format(billingTime)}",
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
                     )
 
                 }
@@ -410,11 +470,12 @@ fun PeopleCountDisplay(peopleCount: Map<Int, Int>) {
     Column {
         peopleCount.forEach { (table, count) ->
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Table $table: $count")
+                Text("Table $table: $count", color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.width(3.dp))
                 Icon(Icons.Default.Person,
                     contentDescription = null,
-                    modifier = Modifier.size(19.dp)
+                    modifier = Modifier.size(19.dp),
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))

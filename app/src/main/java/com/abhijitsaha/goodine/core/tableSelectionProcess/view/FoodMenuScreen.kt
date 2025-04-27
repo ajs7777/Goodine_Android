@@ -39,6 +39,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -65,6 +66,7 @@ fun FoodMenuScreen(
         Text(
             text = "Order Food",
             fontSize = 35.sp,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.ExtraBold,
             modifier = Modifier.padding(vertical = 12.dp)
         )
@@ -101,10 +103,10 @@ fun FoodMenuScreen(
                 .fillMaxWidth()
                 .height(80.dp)
                 .padding(bottom = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Place Order", color = Color.White, fontSize = 16.sp)
+            Text("Place Order", color = MaterialTheme.colorScheme.secondary, fontSize = 16.sp)
         }
     }
 }
@@ -182,7 +184,7 @@ fun MenuItemCard(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFE0DADA))
+                .background(Color(0xFF757575).copy(alpha = 0.2f))
                 .padding(horizontal = 15.dp, vertical = 9.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -199,9 +201,10 @@ fun MenuItemCard(
 
             Text(
                 quantity.toString(),
+                color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Black,
                 fontSize = 16.sp,
-                modifier = Modifier.padding(horizontal = 17.dp)
+                modifier = Modifier.padding(horizontal = 17.dp),
             )
 
             CustomShapeButton(isPlus = true, onClick = {
@@ -218,7 +221,7 @@ fun CustomShapeButton(
     isPlus: Boolean,
     size: Dp = 13.dp,
     barThickness: Dp = 3.dp,
-    color: Color = Color.Black,
+    color: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
     val shapeSize = with(LocalDensity.current) { size.toPx() }
