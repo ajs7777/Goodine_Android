@@ -84,7 +84,6 @@ fun AppNavigation(
             BusinessLoginView(
                 navController = navController,
                 onBackClick = { navController.popBackStack() },
-                onForgotPasswordClick = { /* Handle forgot password */ }
             )
         }
         composable("RestaurantNavigationBar") {

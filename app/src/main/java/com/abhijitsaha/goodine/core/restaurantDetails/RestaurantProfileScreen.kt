@@ -108,12 +108,15 @@ fun RestaurantProfileScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val currentTime by produceState(initialValue = Date()) {
+                    var currentTime by remember { mutableStateOf(Date()) }
+
+                    LaunchedEffect(Unit) {
                         while (true) {
-                            value = Date()
-                            delay(60 * 1000) // Update every minute
+                            delay(60 * 1000)
+                            currentTime = Date()
                         }
                     }
+
 
 
                     var statusText: String

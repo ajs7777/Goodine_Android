@@ -60,7 +60,7 @@ class MenuViewModel : ViewModel() {
             menuListener = firestore.collection("business_users")
                 .document(userId)
                 .collection("menu")
-                .orderBy("name") // Order menu items alphabetically by name
+                .orderBy("foodname")
                 .addSnapshotListener { snapshot, e ->
                     if (e != null) {
                         println("Firestore error: ${e.message}")
@@ -69,10 +69,10 @@ class MenuViewModel : ViewModel() {
                     if (snapshot != null) {
                         _menuItems.value = snapshot.documents.mapNotNull { doc ->
                             val id = doc.id
-                            val name = doc.getString("name") ?: "Unknown"
-                            val description = doc.getString("description") ?: ""
-                            val price = doc.getDouble("price") ?: 0.0
-                            val imageUrl = doc.getString("imageUrl") ?: ""
+                            val name = doc.getString("foodname") ?: "Unknown"
+                            val description = doc.getString("foodDescription") ?: ""
+                            val price = doc.getDouble("foodPrice") ?: 0.0
+                            val imageUrl = doc.getString("foodImage") ?: ""
 
                             val isVeg = when (val vegValue = doc.get("isVeg")) {
                                 is Boolean -> vegValue
@@ -147,10 +147,10 @@ class MenuViewModel : ViewModel() {
     private fun saveItemToFirestore(userId: String, id: String, name: String, description: String, price: Double, isVeg: Boolean, imageUrl: String?) {
         val menuItem = hashMapOf(
             "id" to id,
-            "name" to name,
-            "description" to description,
-            "price" to price,
-            "imageUrl" to imageUrl,
+            "foodname" to name,
+            "foodDescription" to description,
+            "foodPrice" to price,
+            "foodImage" to imageUrl,
             "isVeg" to isVeg
         )
 

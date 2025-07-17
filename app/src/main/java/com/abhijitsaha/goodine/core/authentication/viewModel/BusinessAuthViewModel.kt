@@ -51,12 +51,16 @@ class BusinessAuthViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                // Create user with Firebase Auth
                 val authResult = auth.createUserWithEmailAndPassword(email, password).await()
-                val userId = authResult.user?.uid ?: throw Exception("User ID not found")
+
+                // ✅ FIX: Assign the user from authResult
+                val firebaseUser = authResult.user ?: throw Exception("User creation failed")
+
+                // ✅ Send verification email
+                firebaseUser.sendEmailVerification().await()
 
                 val restaurant = Restaurant(
-                    id = userId,
+                    id = firebaseUser.uid,
                     ownerName = "",
                     name = name,
                     type = type,
@@ -72,8 +76,8 @@ class BusinessAuthViewModel : ViewModel() {
                     currencySymbol = "₹"
                 )
 
-                restaurantCollection.document(userId).set(restaurant).await()
-                successMessage = "Restaurant registered successfully"
+                restaurantCollection.document(firebaseUser.uid).set(restaurant).await()
+                successMessage = "Restaurant registered. Please verify your email."
                 onSuccess()
             } catch (e: Exception) {
                 errorMessage = e.message
@@ -81,6 +85,7 @@ class BusinessAuthViewModel : ViewModel() {
             }
         }
     }
+
 
     fun signIn(
         email: String,
@@ -90,16 +95,25 @@ class BusinessAuthViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                auth.signInWithEmailAndPassword(email, password).await()
-                isLoggedIn = true
-                successMessage = "Sign in successful"
-                onSuccess()
+                val authResult = auth.signInWithEmailAndPassword(email, password).await()
+                val user = authResult.user
+
+                if (user != null && user.isEmailVerified) {
+                    isLoggedIn = true
+                    successMessage = "Sign in successful"
+                    onSuccess()
+                } else {
+                    auth.signOut()
+                    errorMessage = "Please verify your email before logging in."
+                    onFailure("Please verify your email before logging in.")
+                }
             } catch (e: Exception) {
-                errorMessage = e.message
-                onFailure(e.message ?: "Failed to sign in")
+                errorMessage = "Incorrect Password"
+                onFailure("Incorrect Password")
             }
         }
     }
+
 
 
     fun signOut() {
@@ -116,6 +130,29 @@ class BusinessAuthViewModel : ViewModel() {
                 isLoading = false
             }
         }
+    }
+
+    fun resetPassword(
+        email: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                auth.sendPasswordResetEmail(email).await()
+                successMessage = "Password reset email sent"
+                onSuccess()
+            } catch (e: Exception) {
+                errorMessage = e.message
+                onFailure(e.message ?: "Failed to send password reset email")
+            }
+        }
+    }
+
+    suspend fun refreshUserEmailVerificationStatus(): Boolean {
+        val user = auth.currentUser ?: return false
+        user.reload().await()
+        return user.isEmailVerified
     }
 
 
